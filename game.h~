@@ -1,8 +1,17 @@
 #ifndef GUARD_game
 #define GUARD_game
 
+class Game;
+
+#include <vector>
 #include "gameObject.h"
 #include "renderSystem.h"
+#include "planet.h"
+#include "player.h"
+#include "bullet.h"
+
+#include <SDL.h>
+#include <SDL2_gfxPrimitives.h>
 
 class Game
 {
@@ -14,19 +23,25 @@ class Game
 		void cleanup();
 		//main game loop
 		void run();
-		
+		//gets for each object
+		Planet* getPlanet() const;
+		Player* getPlayer() const;
+		std::vector<Bullet> getBullets();
+		void addBullet();
+
 	//attributes
 	private:
 		//quit state, main loop stops when false
 		bool quit_state;
 		//renderer to pass game state to for rendering
-		renderSystem renderer;
+		renderSystem* renderer;
 		//time since last tick
-		double d_time;
-		//keeping reference to the player (for input etc)
-		gameObject player;
-		//array of game objects (player, bullets, etc)
-		vector<gameObject> objs;
+		unsigned int d_time;
+		//declare each type of mob
+		Player* player;
+		Planet* planet;
+		//bullet array
+		std::vector<Bullet> bullets;
 };
 
 #endif

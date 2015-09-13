@@ -89,11 +89,11 @@ void renderSystem::draw(const Game& game)
 					 0, 100, 200, 200);
 	
 	//render each bullet
-	//TODO: Figure out iter implementation
 	//for ( std::vector<Bullet>::iterator iter = (game.getBullets()).begin(); iter != (game.getBullets()).end(); iter++)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
-		Bullet b = (game.getBullets())[i];;
+		Bullet b = (game.getBullets())[i];
+		std::cout << b.getR() << std::endl;
 		filledCircleRGBA(ren,
 						width/2 + b.getR() * cos(b.getTheta() * radPerDeg),
 						height/2 + b.getR() * sin(b.getTheta() * radPerDeg),
