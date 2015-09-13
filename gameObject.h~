@@ -16,11 +16,12 @@ protected:
 	//collision radius - all collisions will be circle-circle
 	double collisionRadius;
 	//gravity. same for all objects
-	double g = -0.01;
+	double g;
 
 public:
 	//tick function - performs all physics etc
-	void tick(double d_time);
+	gameObject();
+	virtual void tick(double d_time);
 	void init();
 	double getR() const;
 	double getTheta() const;

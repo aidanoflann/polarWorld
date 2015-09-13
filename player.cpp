@@ -1,7 +1,8 @@
 #include "player.h"
 #include <iostream>
 
-void Player::init()
+
+Player::Player() : gameObject()
 {
 	//default position is at (0,0) (in both xy and rtheta)
 	r = 200;
@@ -12,16 +13,20 @@ void Player::init()
 	thetaVelDirection = 0;
 	collisionRadius = 16;
 	state = Midair;
-	g = -0.002;
-	
+}
+
+void Player::init()
+{
 }
 
 void Player::tick(double d_time)
 {
 	theta = theta + thetaVelDirection*thetaVel*d_time;
 	if (state == Midair)
+	{
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
+	}
 }
 
 bool Player::collidingWithPlanet(double planetCollisionRadius)

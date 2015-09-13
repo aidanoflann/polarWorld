@@ -26,7 +26,6 @@ public:
 	bool collidingWithPlanet(double);
 	void collideWithPlanet(double);
 	void jump();
-	Bullet shoot(double);
 };
 
 #endif

@@ -21,7 +21,7 @@ private:
 	
 public:
 	int init();
-	void draw(const Game&);
+	void draw(Game&);
 	void cleanup();
 };
 

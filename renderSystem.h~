@@ -16,8 +16,8 @@ private:
 	SDL_Renderer *ren;
 	SDL_Window *win;
 	//window width and height
-	int width;
-	int height;
+	double width;
+	double height;
 	
 public:
 	int init();

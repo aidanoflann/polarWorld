@@ -20,7 +20,8 @@ protected:
 
 public:
 	//tick function - performs all physics etc
-	void tick(double d_time);
+	gameObject();
+	virtual void tick(double d_time);
 	void init();
 	double getR() const;
 	double getTheta() const;
@@ -29,6 +30,8 @@ public:
 	void setTheta(double);
 	void setRVelDirection(double);
 	void setThetaVelDirection(double);
+	virtual bool collidingWithPlanet(double);
+	virtual void collideWithPlanet(double);
 };
 
 #endif

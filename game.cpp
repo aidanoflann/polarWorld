@@ -16,7 +16,9 @@ void Game::init()
 	(*planet).init();
 	//initialise the level's player
 	player = new Player();
-	(*player).init();
+	//TODO: remove these when Spawner is working
+	groundEnemies.push_back( new GroundEnemy( 400, 0, 1) );
+	groundEnemies.push_back( new SkyEnemy( 180, 0, -1) );
 }
 
 void Game::cleanup()
@@ -59,12 +61,12 @@ void Game::run()
 					//if left is pressed, shoot left
 					if ( event.key.keysym.sym == SDLK_LEFT)
 					{
-						bullets.push_back( Bullet( (*player).getR() , (*player).getTheta() , -1 ) );
+						bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , -1 ) );
 					}
 					//if right is pressed, shoot left
 					if ( event.key.keysym.sym == SDLK_RIGHT)
 					{
-						bullets.push_back( Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
+						bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
 					}
 				case SDL_KEYUP:
 					//workaround for SDL2's issue on some systems with events being both KEYUP and KEYDOWN
@@ -81,17 +83,49 @@ void Game::run()
 			}
 		}
 		//perform calculations
-		//first run player collision checks
-		if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
-			(*player).collideWithPlanet( (*planet).getCollisionRadius() );
 		//tick player
 		(*player).tick(d_time);
 		
-		//TODO:run bullet collision checks
+		//run player collision checks
+		if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
+			(*player).collideWithPlanet( (*planet).getCollisionRadius() );
+		
 		//tick all bullets
-		for ( std::vector<Bullet>::iterator iter = bullets.begin(); iter != bullets.end(); iter++)
+		for (int i = 0; i < (bullets).size(); i++)
 		{
-			(*iter).tick(d_time);
+			//tick all bullets
+			bullets[i]->tick(d_time);
+			
+			//run collisionchecks
+			if (SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 && bullets[i]->collidingWithPlayer( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ))
+			{
+				//delete the object bullets[i] is pointing to
+				delete bullets[i];
+				//remove the pointer from the bullets array
+				bullets.erase(bullets.begin() + i);
+				//decrement i by 1 so as not to skip over the next element
+				i--;
+				std::cout << "YOU DEAD SON" << std::endl;
+			}
+			//remove bullets that are too damn old
+			else if ( (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime() )
+			{
+				//delete the object bullets[i] is pointing to
+				delete bullets[i];
+				//remove the pointer from the bullets array
+				bullets.erase(bullets.begin() + i);
+				//decrement i by 1 so as not to skip over the next element
+				i--;
+			}
+		}
+		
+		//tick all enemies
+		for (int i = 0; i < (groundEnemies).size(); i++)
+		{
+			groundEnemies[i]->tick(d_time);
+			//run groundEnemy collision checks
+			if (groundEnemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
+				groundEnemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
 		}
 		
 		//pass objects vector to renderer
@@ -112,9 +146,14 @@ Player* Game::getPlayer() const
 	return player;
 }
 
-std::vector<Bullet> Game::getBullets() const
+std::vector<Bullet*> Game::getBullets()
 {
 	return bullets;
+}
+
+std::vector<gameObject*> Game::getGroundEnemies()
+{
+	return groundEnemies;
 }
 
 void Game::addBullet()

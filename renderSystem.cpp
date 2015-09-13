@@ -64,7 +64,7 @@ int renderSystem::init()
 	(*this).win = win;
 }
 
-void renderSystem::draw(const Game& game)
+void renderSystem::draw( Game& game)
 {
 	//First clear the renderer
 	SDL_RenderClear(ren);
@@ -88,17 +88,28 @@ void renderSystem::draw(const Game& game)
 					 (*game.getPlayer()).getCollisionRadius(),
 					 0, 100, 200, 200);
 	
+	//render each groundenemy
+	for (int i = 0; i != (game.getGroundEnemies()).size(); i++)
+	{
+		gameObject gen = *((game.getGroundEnemies())[i]);
+		filledCircleRGBA(ren,
+					width/2 + gen.getR() * cos(gen.getTheta() * radPerDeg),
+					height/2 + gen.getR() * sin(gen.getTheta() * radPerDeg),
+					gen.getCollisionRadius(),
+					200, 100, 200, 200);
+	}
+	
 	//render each bullet
 	//TODO: Figure out iter implementation
 	//for ( std::vector<Bullet>::iterator iter = (game.getBullets()).begin(); iter != (game.getBullets()).end(); iter++)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
-		Bullet b = (game.getBullets())[i];;
+		Bullet b = *((game.getBullets())[i]);
 		filledCircleRGBA(ren,
 						width/2 + b.getR() * cos(b.getTheta() * radPerDeg),
 						height/2 + b.getR() * sin(b.getTheta() * radPerDeg),
 						b.getCollisionRadius(),
-						250, 100, 100, 200);
+						250, 100, 100, 255);
 	}
 	//Update the screen
 	SDL_RenderPresent(ren);

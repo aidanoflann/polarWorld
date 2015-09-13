@@ -10,8 +10,12 @@ public:
 	//constructor
 	Bullet( double, double, double );
 	void tick(double);
-	double getR() const;
-	double getTheta() const;
+	double getTimeBorn();
+	double getLifeTime();
+	
+private:
+	double timeBorn;
+	double lifeTime;
 };
 
 #endif

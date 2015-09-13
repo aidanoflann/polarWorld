@@ -2,6 +2,8 @@
 
 #include "game.h"
 
+double radPerDeg = 0.01745329251;
+
 int main()
 {
 	//instantiate the game class
@@ -10,4 +12,6 @@ int main()
 	game.init();
 	//run (main game loop)
 	game.run();
+	
+	return 0;
 }

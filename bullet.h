@@ -10,6 +10,14 @@ public:
 	//constructor
 	Bullet( double, double, double );
 	void tick(double);
+	double getTimeBorn();
+	double getLifeTime();
+	bool collidingWithPlayer(double, double, double);
+	void collideWithPlayer();
+	
+private:
+	double timeBorn;
+	double lifeTime;
 };
 
 #endif

@@ -1,6 +1,11 @@
 #include "player.h"
 #include <iostream>
 
+
+Player::Player() : gameObject()
+{
+}
+
 void Player::init()
 {
 	//default position is at (0,0) (in both xy and rtheta)
@@ -12,7 +17,6 @@ void Player::init()
 	thetaVelDirection = 0;
 	collisionRadius = 16;
 	state = Midair;
-	g = -0.002;
 	
 }
 
@@ -20,8 +24,10 @@ void Player::tick(double d_time)
 {
 	theta = theta + thetaVelDirection*thetaVel*d_time;
 	if (state == Midair)
+	{
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
+	}
 }
 
 bool Player::collidingWithPlanet(double planetCollisionRadius)
@@ -45,12 +51,4 @@ void Player::jump()
 		rVel = 0.5;
 		rVelDirection = +1;
 	}
-}
-
-//fire a bullet (input is +1 or -1 for direction)
-Bullet Player::shoot(double dir)
-{
-	std::cout << "BANG" << std::endl;
-	Bullet test = Bullet(r, theta, dir);
-	return test;
 }

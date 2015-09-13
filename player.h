@@ -26,6 +26,7 @@ public:
 	bool collidingWithPlanet(double);
 	void collideWithPlanet(double);
 	void jump();
+	Player();
 };
 
 #endif

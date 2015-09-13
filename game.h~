@@ -9,6 +9,8 @@ class Game;
 #include "planet.h"
 #include "player.h"
 #include "bullet.h"
+#include "groundEnemy.h"
+#include "skyEnemy.h"
 
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
@@ -26,7 +28,8 @@ class Game
 		//gets for each object
 		Planet* getPlanet() const;
 		Player* getPlayer() const;
-		std::vector<Bullet> getBullets();
+		std::vector<Bullet*> getBullets() const;
+		std::vector<gameObject*> getGroundEnemies();
 		void addBullet();
 
 	//attributes
@@ -41,7 +44,8 @@ class Game
 		Player* player;
 		Planet* planet;
 		//bullet array
-		std::vector<Bullet> bullets;
+		std::vector<Bullet*> bullets;
+		std::vector<gameObject*> groundEnemies;
 };
 
 #endif
