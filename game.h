@@ -11,6 +11,7 @@ class Game;
 #include "bullet.h"
 #include "groundEnemy.h"
 #include "skyEnemy.h"
+#include "cloud.h"
 
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
@@ -28,6 +29,7 @@ class Game
 		//gets for each object
 		Planet* getPlanet() const;
 		Player* getPlayer() const;
+		Cloud* getCloud() const;
 		std::vector<Bullet*> getBullets();
 		std::vector<gameObject*> getGroundEnemies();
 		void addBullet();
@@ -43,6 +45,7 @@ class Game
 		//declare each type of mob
 		Player* player;
 		Planet* planet;
+		Cloud* cloud;
 		//bullet array
 		std::vector<Bullet*> bullets;
 		std::vector<gameObject*> groundEnemies;

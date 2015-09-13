@@ -16,6 +16,9 @@ void Game::init()
 	(*planet).init();
 	//initialise the level's player
 	player = new Player();
+	//initialise the level's cloud
+	cloud = new Cloud(200, player->getTheta() + 180);
+	//TODO: remove these when Spawner is working
 	groundEnemies.push_back( new GroundEnemy( 400, 0, 1) );
 	groundEnemies.push_back( new SkyEnemy( 180, 0, -1) );
 }
@@ -85,6 +88,9 @@ void Game::run()
 		//tick player
 		(*player).tick(d_time);
 		
+		//tick cloud
+		(*cloud).tick(d_time, (*player).getTheta());
+		
 		//run player collision checks
 		if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
 			(*player).collideWithPlanet( (*planet).getCollisionRadius() );
@@ -143,6 +149,11 @@ Planet* Game::getPlanet() const
 Player* Game::getPlayer() const
 {
 	return player;
+}
+
+Cloud* Game::getCloud() const
+{
+	return cloud;
 }
 
 std::vector<Bullet*> Game::getBullets()

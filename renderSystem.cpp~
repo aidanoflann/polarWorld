@@ -88,6 +88,13 @@ void renderSystem::draw( Game& game)
 					 (*game.getPlayer()).getCollisionRadius(),
 					 0, 100, 200, 200);
 	
+	//render the cloud
+	filledCircleRGBA(ren,
+					 width/2 + (*(game.getCloud())).getR() * cos((*(game.getCloud())).getTheta() * radPerDeg),
+					 height/2 + (*(game.getCloud())).getR() * sin((*(game.getCloud())).getTheta() * radPerDeg),
+					 (*game.getCloud()).getCollisionRadius(),
+					 100, 100, 100, 100);
+	
 	//render each groundenemy
 	for (int i = 0; i != (game.getGroundEnemies()).size(); i++)
 	{
@@ -104,11 +111,11 @@ void renderSystem::draw( Game& game)
 	//for ( std::vector<Bullet>::iterator iter = (game.getBullets()).begin(); iter != (game.getBullets()).end(); iter++)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
-		Bullet* b = (game.getBullets())[i];;
+		Bullet b = *((game.getBullets())[i]);
 		filledCircleRGBA(ren,
-						width/2 + b->getR() * cos(b->getTheta() * radPerDeg),
-						height/2 + b->getR() * sin(b->getTheta() * radPerDeg),
-						b->getCollisionRadius(),
+						width/2 + b.getR() * cos(b.getTheta() * radPerDeg),
+						height/2 + b.getR() * sin(b.getTheta() * radPerDeg),
+						b.getCollisionRadius(),
 						250, 100, 100, 255);
 	}
 	//Update the screen

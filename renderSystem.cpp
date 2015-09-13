@@ -30,8 +30,8 @@ int renderSystem::init()
     //   linked.major, linked.minor, linked.patch);
 	
 	//set width and height
-	width = 640;
-	height = 480;
+	width = 800;
+	height = 600;
 	
 	//first let's initialise SDL2, 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -87,6 +87,13 @@ void renderSystem::draw( Game& game)
 					 height/2 + (*(game.getPlayer())).getR() * sin((*(game.getPlayer())).getTheta() * radPerDeg),
 					 (*game.getPlayer()).getCollisionRadius(),
 					 0, 100, 200, 200);
+	
+	//render the cloud
+	filledCircleRGBA(ren,
+					 width/2 + (*(game.getCloud())).getR() * cos((*(game.getCloud())).getTheta() * radPerDeg),
+					 height/2 + (*(game.getCloud())).getR() * sin((*(game.getCloud())).getTheta() * radPerDeg),
+					 (*game.getCloud()).getCollisionRadius(),
+					 100, 100, 100, 100);
 	
 	//render each groundenemy
 	for (int i = 0; i != (game.getGroundEnemies()).size(); i++)
