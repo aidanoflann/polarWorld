@@ -13,6 +13,7 @@ Player::Player() : gameObject()
 	thetaVelDirection = 0;
 	collisionRadius = 16;
 	state = Midair;
+	numKills = 0;
 }
 
 void Player::init()
@@ -51,3 +52,6 @@ void Player::jump()
 		rVelDirection = +1;
 	}
 }
+
+int Player::getNumKills(){return numKills;}
+void Player::addKill(){ numKills++; }

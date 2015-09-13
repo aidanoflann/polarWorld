@@ -10,13 +10,9 @@ public:
 	//constructor
 	Bullet( double, double, double );
 	void tick(double);
-	double getTimeBorn();
-	double getLifeTime();
-	bool collidingWithGameObject(double, double, double);
-	void collideWithPlayer();
 	
 private:
-	double timeBorn;
+	double startCDTimer;
 	double lifeTime;
 };
 

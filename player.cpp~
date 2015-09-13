@@ -4,10 +4,6 @@
 
 Player::Player() : gameObject()
 {
-}
-
-void Player::init()
-{
 	//default position is at (0,0) (in both xy and rtheta)
 	r = 200;
 	rVel = 0;
@@ -17,7 +13,11 @@ void Player::init()
 	thetaVelDirection = 0;
 	collisionRadius = 16;
 	state = Midair;
-	
+	numKills = 0;
+}
+
+void Player::init()
+{
 }
 
 void Player::tick(double d_time)
@@ -52,3 +52,6 @@ void Player::jump()
 		rVelDirection = +1;
 	}
 }
+
+int Player::getNumKills(){return numKills;}
+void Player::addKill(){ numKills++ }

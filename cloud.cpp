@@ -7,6 +7,9 @@
 //constructor
 Cloud::Cloud(double rToSet, double thetaToSet)
 {
+	startCDTimer = SDL_GetTicks();
+	timeNow = startCDTimer;
+	spawnCoolDown = 1000; //ms
 	rVel = 0;
 	thetaVel = 0;
 	collisionRadius = 25;
@@ -21,4 +24,14 @@ void Cloud::init()
 void Cloud::tick(double d_time, double playerTheta)
 {
 	theta = playerTheta + 180;
+}
+
+bool Cloud::doSpawn(double d_time, int playerKills)
+{
+	spawnCoolDown = std::max(1000 - playerKills*10, 300 );
+	timeNow += d_time;
+	bool doSpawn = timeNow > spawnCoolDown;
+	if (doSpawn)
+		timeNow -= spawnCoolDown;
+	return doSpawn;
 }

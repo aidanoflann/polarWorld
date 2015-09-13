@@ -16,6 +16,7 @@ private:
 	State state;
 	//rage, determines bullet speed as game progresses
 	double rage;
+	int numKills;
 	
 public:
 	//initialise default variables
@@ -27,6 +28,8 @@ public:
 	void collideWithPlanet(double);
 	void jump();
 	Player();
+	int getNumKills();
+	void addKill();
 };
 
 #endif

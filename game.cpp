@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 #include "game.h"
 #include "renderSystem.h"
 #include "bullet.h"
@@ -18,9 +19,6 @@ void Game::init()
 	player = new Player();
 	//initialise the level's cloud
 	cloud = new Cloud(250, player->getTheta() + 180);
-	//TODO: remove these when Spawner is working
-	enemies.push_back( new GroundEnemy( 400, 0, 1) );
-	enemies.push_back( new SkyEnemy( 180, 0, -1) );
 }
 
 void Game::cleanup()
@@ -94,7 +92,20 @@ void Game::run()
 		
 		//tick cloud
 		(*cloud).tick(d_time, (*player).getTheta());
-		
+		//spawn a new enemy
+		if ( cloud->doSpawn(d_time, player->getNumKills()) )
+		{
+			//randomly choose between ground and sky enemies, and between left or right velocities
+			int coin = rand()%4;
+			if (coin == 0)
+					enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), 1) );
+			else if (coin == 1)
+					enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), -1) );
+			else if (coin == 2)
+					enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), 1) );
+			else if (coin == 3)
+					enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), -1) );
+		}
 		//tick all bullets
 		for (int i = 0; i < (bullets).size(); i++)
 		{
@@ -115,6 +126,8 @@ void Game::run()
 				{
 					bullets[i]->MarkForDeletion();
 					enemies[j]->MarkForDeletion();
+					player->addKill();
+					std::cout << player->getNumKills() << std::endl;
 				}
 			}
 		}
