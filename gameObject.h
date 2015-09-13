@@ -17,6 +17,8 @@ protected:
 	double collisionRadius;
 	//gravity. same for all objects
 	double g;
+	//attribute for removing dead objects at the end of the while loop
+	bool markedForDeletion;
 
 public:
 	//tick function - performs all physics etc
@@ -32,6 +34,9 @@ public:
 	void setThetaVelDirection(double);
 	virtual bool collidingWithPlanet(double);
 	virtual void collideWithPlanet(double);
+	bool collidingWithGameObject(double, double, double);
+	bool getMarkedForDeletion();
+	void MarkForDeletion();
 };
 
 #endif

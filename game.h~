@@ -29,8 +29,9 @@ class Game
 		//gets for each object
 		Planet* getPlanet() const;
 		Player* getPlayer() const;
+		Cloud* getCloud() const;
 		std::vector<Bullet*> getBullets();
-		std::vector<gameObject*> getGroundEnemies();
+		std::vector<gameObject*> enemies();
 		void addBullet();
 
 	//attributes
@@ -47,7 +48,7 @@ class Game
 		Cloud* cloud;
 		//bullet array
 		std::vector<Bullet*> bullets;
-		std::vector<gameObject*> groundEnemies;
+		std::vector<gameObject*> enemies;
 };
 
 #endif

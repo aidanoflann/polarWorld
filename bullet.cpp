@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cmath>
 #include <SDL.h>
 
 #include "bullet.h"
@@ -27,14 +26,6 @@ void Bullet::tick(double d_time)
 	theta = theta + thetaVelDirection*thetaVel*d_time;
 }
 
-bool Bullet::collidingWithPlayer(double playerR, double playerTheta, double playerCollisionRadius)
-{
-	return r*r + playerR*playerR - 2*r*playerR*cos( (playerTheta - theta) * 0.01745329251) < pow(collisionRadius + playerCollisionRadius, 2);
-}
-void Bullet::collideWithPlayer()
-{
-	
-}
 
 double Bullet::getTimeBorn() { return timeBorn; }
 double Bullet::getLifeTime() { return lifeTime; }

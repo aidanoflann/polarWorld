@@ -17,10 +17,10 @@ void Game::init()
 	//initialise the level's player
 	player = new Player();
 	//initialise the level's cloud
-	cloud = new Cloud(200, player->getTheta() + 180);
+	cloud = new Cloud(250, player->getTheta() + 180);
 	//TODO: remove these when Spawner is working
-	groundEnemies.push_back( new GroundEnemy( 400, 0, 1) );
-	groundEnemies.push_back( new SkyEnemy( 180, 0, -1) );
+	enemies.push_back( new GroundEnemy( 400, 0, 1) );
+	enemies.push_back( new SkyEnemy( 180, 0, -1) );
 }
 
 void Game::cleanup()
@@ -88,12 +88,12 @@ void Game::run()
 		//tick player
 		(*player).tick(d_time);
 		
-		//tick cloud
-		(*cloud).tick(d_time, (*player).getTheta());
-		
 		//run player collision checks
 		if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
 			(*player).collideWithPlanet( (*planet).getCollisionRadius() );
+		
+		//tick cloud
+		(*cloud).tick(d_time, (*player).getTheta());
 		
 		//tick all bullets
 		for (int i = 0; i < (bullets).size(); i++)
@@ -101,19 +101,38 @@ void Game::run()
 			//tick all bullets
 			bullets[i]->tick(d_time);
 			
-			//run collisionchecks
-			if (SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 && bullets[i]->collidingWithPlayer( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ))
+			//check collisions with player
+			if (SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 &&
+				bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() )
+				//remove bullets that are too damn old
+				|| (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime())
+					bullets[i]->MarkForDeletion();
+					
+			//check collisions with enemies
+			for( int j = 0; j < enemies.size(); j++)
 			{
-				//delete the object bullets[i] is pointing to
-				delete bullets[i];
-				//remove the pointer from the bullets array
-				bullets.erase(bullets.begin() + i);
-				//decrement i by 1 so as not to skip over the next element
-				i--;
-				std::cout << "YOU DEAD SON" << std::endl;
+				if ( enemies[j]->collidingWithGameObject( enemies[j]->getR(), enemies[j]->getTheta(), enemies[j]->getCollisionRadius() ) )
+				{
+					bullets[i]->MarkForDeletion();
+					enemies[j]->MarkForDeletion();
+				}
 			}
-			//remove bullets that are too damn old
-			else if ( (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime() )
+		}
+		
+		//tick all enemies
+		for (int i = 0; i < (enemies).size(); i++)
+		{
+			enemies[i]->tick(d_time);
+			//run groundEnemy collision checks
+			if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
+				enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
+		}
+		
+		//remove objects which have been marked for deletion
+		//bullets
+		for (int i = 0; i < bullets.size(); i++)
+		{
+			if (bullets[i]->getMarkedForDeletion())
 			{
 				//delete the object bullets[i] is pointing to
 				delete bullets[i];
@@ -123,14 +142,18 @@ void Game::run()
 				i--;
 			}
 		}
-		
-		//tick all enemies
-		for (int i = 0; i < (groundEnemies).size(); i++)
+		//enemies
+		for (int i = 0; i < enemies.size(); i++)
 		{
-			groundEnemies[i]->tick(d_time);
-			//run groundEnemy collision checks
-			if (groundEnemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
-				groundEnemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
+			if (enemies[i]->getMarkedForDeletion())
+			{
+				//delete the object bullets[i] is pointing to
+				delete enemies[i];
+				//remove the pointer from the bullets array
+				enemies.erase(enemies.begin() + i);
+				//decrement i by 1 so as not to skip over the next element
+				i--;
+			}
 		}
 		
 		//pass objects vector to renderer
@@ -138,7 +161,7 @@ void Game::run()
 		
 	}
 	
-	(*this).cleanup();
+	cleanup();
 }
 
 Planet* Game::getPlanet() const
@@ -161,9 +184,9 @@ std::vector<Bullet*> Game::getBullets()
 	return bullets;
 }
 
-std::vector<gameObject*> Game::getGroundEnemies()
+std::vector<gameObject*> Game::getEnemies()
 {
-	return groundEnemies;
+	return enemies;
 }
 
 void Game::addBullet()

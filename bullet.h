@@ -12,8 +12,6 @@ public:
 	void tick(double);
 	double getTimeBorn();
 	double getLifeTime();
-	bool collidingWithPlayer(double, double, double);
-	void collideWithPlayer();
 	
 private:
 	double timeBorn;

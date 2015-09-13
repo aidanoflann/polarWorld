@@ -31,7 +31,7 @@ class Game
 		Player* getPlayer() const;
 		Cloud* getCloud() const;
 		std::vector<Bullet*> getBullets();
-		std::vector<gameObject*> getGroundEnemies();
+		std::vector<gameObject*> getEnemies();
 		void addBullet();
 
 	//attributes
@@ -48,7 +48,7 @@ class Game
 		Cloud* cloud;
 		//bullet array
 		std::vector<Bullet*> bullets;
-		std::vector<gameObject*> groundEnemies;
+		std::vector<gameObject*> enemies;
 };
 
 #endif

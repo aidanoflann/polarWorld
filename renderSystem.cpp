@@ -96,13 +96,13 @@ void renderSystem::draw( Game& game)
 					 100, 100, 100, 100);
 	
 	//render each groundenemy
-	for (int i = 0; i != (game.getGroundEnemies()).size(); i++)
+	for (int i = 0; i != (game.getEnemies()).size(); i++)
 	{
-		gameObject gen = *((game.getGroundEnemies())[i]);
+		gameObject en = *((game.getEnemies())[i]);
 		filledCircleRGBA(ren,
-					width/2 + gen.getR() * cos(gen.getTheta() * radPerDeg),
-					height/2 + gen.getR() * sin(gen.getTheta() * radPerDeg),
-					gen.getCollisionRadius(),
+					width/2 + en.getR() * cos(en.getTheta() * radPerDeg),
+					height/2 + en.getR() * sin(en.getTheta() * radPerDeg),
+					en.getCollisionRadius(),
 					200, 100, 200, 200);
 	}
 	
