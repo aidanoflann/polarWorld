@@ -7,13 +7,13 @@
 Bullet::Bullet( double rToSet, double thetaToSet, double dir)
 {
 	rVel = 0;
-	thetaVel = 0.2;
+	thetaVel = 0.3;
 	collisionRadius = 5;
 	
 	r = rToSet;
 	theta = thetaToSet;
 	thetaVelDirection = dir;
-	lifeTime = 3000; //ms
+	lifeTime = 4000; //ms
 	
 	timeBorn = SDL_GetTicks();
 }

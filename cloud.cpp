@@ -7,8 +7,8 @@
 //constructor
 Cloud::Cloud(double rToSet, double thetaToSet)
 {
-	startCDTimer = SDL_GetTicks();
-	timeNow = startCDTimer;
+	timeNow = SDL_GetTicks();
+	std::cout << timeNow << std::endl;
 	spawnCoolDown = 1000; //ms
 	rVel = 0;
 	thetaVel = 0;
@@ -32,6 +32,8 @@ bool Cloud::doSpawn(double d_time, int playerKills)
 	timeNow += d_time;
 	bool doSpawn = timeNow > spawnCoolDown;
 	if (doSpawn)
+	{
 		timeNow -= spawnCoolDown;
+	}
 	return doSpawn;
 }

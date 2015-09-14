@@ -31,8 +31,10 @@ class Game
 		Player* getPlayer() const;
 		Cloud* getCloud() const;
 		std::vector<Bullet*> getBullets();
-		std::vector<gameObject*> enemies();
+		std::vector<gameObject*> getEnemies();
 		void addBullet();
+		void restart();
+		void gameOver();
 
 	//attributes
 	private:
@@ -49,6 +51,7 @@ class Game
 		//bullet array
 		std::vector<Bullet*> bullets;
 		std::vector<gameObject*> enemies;
+		unsigned int lastTime;
 };
 
 #endif

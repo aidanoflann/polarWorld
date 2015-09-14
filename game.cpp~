@@ -9,6 +9,7 @@ void Game::init()
 {
 	quit_state = 0;
 	d_time = 0;
+	lastTime = 0;
 	//initialise the rendersystem
 	renderer = new renderSystem();
 	(*renderer).init();
@@ -19,17 +20,26 @@ void Game::init()
 	player = new Player();
 	//initialise the level's cloud
 	cloud = new Cloud(250, player->getTheta() + 180);
+	std::vector<gameObject> enemies;
+	std::vector<Bullet> bullets;
 }
 
 void Game::cleanup()
 {
+	delete player;
+	delete planet;
+	delete cloud;
+	for (int i = 0; i < enemies.size(); i++) { delete enemies[i];}
+	enemies.clear();
+	for (int i = 0; i < bullets.size(); i++) { delete bullets[i];}
+	bullets.clear();
 	(*renderer).cleanup();
+	delete renderer;
 }
 
 void Game::run()
 {
 	SDL_Event event;
-	unsigned int lastTime = 0;
 	while( !quit_state )
 	{
 		//TODO: get current time in nanoseconds
@@ -68,6 +78,11 @@ void Game::run()
 					{
 						bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
 					}
+					//if r is pressed, reset level
+					if ( event.key.keysym.sym == SDLK_r)
+					{
+						restart();
+					}
 				case SDL_KEYUP:
 					//workaround for SDL2's issue on some systems with events being both KEYUP and KEYDOWN
 					//TODO: Check if this has been fixed
@@ -93,7 +108,7 @@ void Game::run()
 		//tick cloud
 		(*cloud).tick(d_time, (*player).getTheta());
 		//spawn a new enemy
-		if ( cloud->doSpawn(d_time) )
+		if ( cloud->doSpawn(d_time, player->getNumKills()) )
 		{
 			//randomly choose between ground and sky enemies, and between left or right velocities
 			int coin = rand()%4;
@@ -113,10 +128,10 @@ void Game::run()
 			bullets[i]->tick(d_time);
 			
 			//check collisions with player
-			if (SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 &&
-				bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() )
-				//remove bullets that are too damn old
-				|| (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime())
+			if ( SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 && ( bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ) ) )
+				gameOver();
+			//remove bullets that are too damn old
+			else if ( (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime() )
 					bullets[i]->MarkForDeletion();
 					
 			//check collisions with enemies
@@ -139,6 +154,9 @@ void Game::run()
 			//run groundEnemy collision checks
 			if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
 				enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
+			//run player collision checks
+			if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() )
+				gameOver();
 		}
 		
 		//remove objects which have been marked for deletion
@@ -177,32 +195,20 @@ void Game::run()
 	cleanup();
 }
 
-Planet* Game::getPlanet() const
+void Game::restart()
 {
-	return planet;
+	cleanup();
+	init();
 }
 
-Player* Game::getPlayer() const
+void Game::gameOver()
 {
-	return player;
+	restart();
 }
 
-Cloud* Game::getCloud() const
-{
-	return cloud;
-}
-
-std::vector<Bullet*> Game::getBullets()
-{
-	return bullets;
-}
-
-std::vector<gameObject*> Game::getEnemies()
-{
-	return enemies;
-}
-
-void Game::addBullet()
-{
-	
-}
+Planet* Game::getPlanet() const{return planet;}
+Player* Game::getPlayer() const{return player;}
+Cloud* Game::getCloud() const{return cloud;}
+std::vector<Bullet*> Game::getBullets(){return bullets;}
+std::vector<gameObject*> Game::getEnemies(){return enemies;}
+void Game::addBullet(){}
