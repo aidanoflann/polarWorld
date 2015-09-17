@@ -32,6 +32,7 @@ public:
 	void setTheta(double);
 	void setRVelDirection(double);
 	void setThetaVelDirection(double);
+	double getThetaVelDirection();
 	virtual bool collidingWithPlanet(double);
 	virtual void collideWithPlanet(double);
 	bool collidingWithGameObject(double, double, double);

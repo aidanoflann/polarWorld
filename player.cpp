@@ -14,6 +14,7 @@ Player::Player() : gameObject()
 	collisionRadius = 16;
 	state = Midair;
 	numKills = 0;
+	shootingRight = 1; //1 is right, 0 is left
 }
 
 void Player::init()
@@ -55,3 +56,5 @@ void Player::jump()
 
 int Player::getNumKills(){return numKills;}
 void Player::addKill(){ numKills++; }
+bool Player::getShootingRight() {return shootingRight;}
+void Player::setShootingRight(bool shootingRightToSet) { shootingRight = shootingRightToSet;}

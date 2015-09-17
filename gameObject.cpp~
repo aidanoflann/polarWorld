@@ -8,7 +8,7 @@ void gameObject::init()
 
 gameObject::gameObject()
 {
-	g = -0.002;
+	g = -0.005;
 	markedForDeletion = 0;
 }
 
@@ -19,10 +19,12 @@ void gameObject::setR(double rToSet) {r = rToSet;}
 void gameObject::setTheta(double thetaToSet) {theta = thetaToSet;}
 void gameObject::setRVelDirection(double dirToSet) {rVelDirection = dirToSet;}
 void gameObject::setThetaVelDirection(double dirToSet) {thetaVelDirection = dirToSet;}
+double gameObject::getThetaVelDirection() {return thetaVelDirection;}
 void gameObject::tick( double d_time ){}
 bool gameObject::collidingWithPlanet(double planetCollisionRadius){return 0;}
 void gameObject::collideWithPlanet(double planetCollisionRadius){}
 bool gameObject::getMarkedForDeletion(){ return markedForDeletion;}
+void gameObject::MarkForDeletion(){ markedForDeletion = 1;}
 
 
 bool gameObject::collidingWithGameObject(double objR, double objTheta, double objCollisionRadius)

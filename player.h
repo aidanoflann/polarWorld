@@ -17,6 +17,7 @@ private:
 	//rage, determines bullet speed as game progresses
 	double rage;
 	int numKills;
+	bool shootingRight;
 	
 public:
 	//initialise default variables
@@ -30,6 +31,8 @@ public:
 	Player();
 	int getNumKills();
 	void addKill();
+	void setShootingRight(bool);
+	bool getShootingRight();
 };
 
 #endif

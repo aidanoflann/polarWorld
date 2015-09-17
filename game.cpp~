@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <cmath>
 #include "game.h"
 #include "renderSystem.h"
 #include "bullet.h"
@@ -10,6 +11,8 @@ void Game::init()
 	quit_state = 0;
 	d_time = 0;
 	lastTime = 0;
+	fps = 0;
+	fpsCheckTime = 0;
 	//initialise the rendersystem
 	renderer = new renderSystem();
 	(*renderer).init();
@@ -48,6 +51,15 @@ void Game::run()
 		(*this).d_time = currentTime - lastTime;
 		lastTime = currentTime;
 		
+		//update fps
+		frames ++;
+		if ( (currentTime - fpsCheckTime) > 1000)
+		{
+			fps = frames;
+			fpsCheckTime += 1000;
+			frames = 0;
+		}
+		
 		//handle inputs, SDL_PolleEvent will return false when there are none
 		while(SDL_PollEvent( &event ))
 		{
@@ -59,41 +71,54 @@ void Game::run()
 					if ( event.window.event == SDL_WINDOWEVENT_CLOSE )
 						(*this).quit_state = 1;
 				case SDL_KEYDOWN:
-					//if left is pressed, set the player's thetaDir to -1
-					if ( event.key.keysym.sym == SDLK_a)
-						(*player).setThetaVelDirection(-1);
-					//if right is pressed, set the player's thetaDir to -1
-					if ( event.key.keysym.sym == SDLK_d)
-						(*player).setThetaVelDirection(1);
-					//if up or space is pressed, jump!
-					if ( event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-						(*player).jump();
-					//if left is pressed, shoot left
-					if ( event.key.keysym.sym == SDLK_LEFT)
+					//we don't want holding down the key to repeat inputs:
+					if (!event.key.repeat)
 					{
-						bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , -1 ) );
-					}
-					//if right is pressed, shoot left
-					if ( event.key.keysym.sym == SDLK_RIGHT)
-					{
-						bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
-					}
-					//if r is pressed, reset level
-					if ( event.key.keysym.sym == SDLK_r)
-					{
-						restart();
+						//if left is pressed, set the player's thetaDir to -1
+						if ( event.key.keysym.sym == SDLK_a)
+							(*player).setThetaVelDirection( player->getThetaVelDirection() - 1 );
+						//if right is pressed, set the player's thetaDir to -1
+						if ( event.key.keysym.sym == SDLK_d)
+							(*player).setThetaVelDirection( player->getThetaVelDirection() + 1 );
+						//if up or space is pressed, jump!
+						if ( event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+							(*player).jump();
+						//if left is pressed, shoot left
+						if ( event.key.keysym.sym == SDLK_LEFT)
+						{
+							bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , -1 ) );
+							player->setShootingRight(0);
+						}
+						//if right is pressed, shoot right
+						if ( event.key.keysym.sym == SDLK_RIGHT)
+						{
+							bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
+							player->setShootingRight(1);
+						}
+						//if r is pressed, reset level
+						if ( event.key.keysym.sym == SDLK_r)
+						{
+							restart();
+						}
+						std::cout << player->getShootingRight() << std::endl;
 					}
 				case SDL_KEYUP:
 					//workaround for SDL2's issue on some systems with events being both KEYUP and KEYDOWN
 					//TODO: Check if this has been fixed
-					if ( event.type != SDL_KEYDOWN )
+					if ( event.type != SDL_KEYDOWN && (event.key.keysym.sym == SDLK_a ||event.key.keysym.sym == SDLK_d))
 					{
+						//set up a pointer to check the states of other keys
+						const Uint8 *state = SDL_GetKeyboardState(NULL);
 						//if left is depressed, set the player's thetaDir to 0
-						if ( event.key.keysym.sym == SDLK_a)
-							(*player).setThetaVelDirection(0);
+						if ( event.key.keysym.sym == SDLK_a && state[SDL_SCANCODE_D])
+							(*player).setThetaVelDirection( 1 );
+						if ( event.key.keysym.sym == SDLK_a && !state[SDL_SCANCODE_D])
+							(*player).setThetaVelDirection( 0 );
 						//if right is depressed, set the player's thetaDir to 0
-						if ( event.key.keysym.sym == SDLK_d)
-							(*player).setThetaVelDirection(0);
+						if ( event.key.keysym.sym == SDLK_d && state[SDL_SCANCODE_A])
+							(*player).setThetaVelDirection( -1);
+						if ( event.key.keysym.sym == SDLK_d && !state[SDL_SCANCODE_A])
+							(*player).setThetaVelDirection( 0 );
 					}
 			}
 		}
@@ -108,6 +133,7 @@ void Game::run()
 		//tick cloud
 		(*cloud).tick(d_time, (*player).getTheta());
 		//spawn a new enemy
+		//TODO:uncomment this to spawn
 		if ( cloud->doSpawn(d_time, player->getNumKills()) )
 		{
 			//randomly choose between ground and sky enemies, and between left or right velocities
@@ -142,7 +168,6 @@ void Game::run()
 					bullets[i]->MarkForDeletion();
 					enemies[j]->MarkForDeletion();
 					player->addKill();
-					std::cout << player->getNumKills() << std::endl;
 				}
 			}
 		}
@@ -155,7 +180,7 @@ void Game::run()
 			if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
 				enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
 			//run player collision checks
-			if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() )
+			if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() ) )
 				gameOver();
 		}
 		
@@ -211,4 +236,5 @@ Player* Game::getPlayer() const{return player;}
 Cloud* Game::getCloud() const{return cloud;}
 std::vector<Bullet*> Game::getBullets(){return bullets;}
 std::vector<gameObject*> Game::getEnemies(){return enemies;}
+unsigned int Game::getFPS() { return fps; }
 void Game::addBullet(){}

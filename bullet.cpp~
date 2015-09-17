@@ -7,8 +7,8 @@
 Bullet::Bullet( double rToSet, double thetaToSet, double dir)
 {
 	rVel = 0;
-	thetaVel = 0.2;
-	collisionRadius = 5;
+	thetaVel = 0.3;
+	collisionRadius = 15;
 	
 	r = rToSet;
 	theta = thetaToSet;

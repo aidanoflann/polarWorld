@@ -19,6 +19,7 @@ void gameObject::setR(double rToSet) {r = rToSet;}
 void gameObject::setTheta(double thetaToSet) {theta = thetaToSet;}
 void gameObject::setRVelDirection(double dirToSet) {rVelDirection = dirToSet;}
 void gameObject::setThetaVelDirection(double dirToSet) {thetaVelDirection = dirToSet;}
+double gameObject::getThetaVelDirection() {return thetaVelDirection;}
 void gameObject::tick( double d_time ){}
 bool gameObject::collidingWithPlanet(double planetCollisionRadius){return 0;}
 void gameObject::collideWithPlanet(double planetCollisionRadius){}

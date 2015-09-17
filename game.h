@@ -35,6 +35,7 @@ class Game
 		void addBullet();
 		void restart();
 		void gameOver();
+		unsigned int getFPS();
 
 	//attributes
 	private:
@@ -52,6 +53,9 @@ class Game
 		std::vector<Bullet*> bullets;
 		std::vector<gameObject*> enemies;
 		unsigned int lastTime;
+		unsigned int fpsCheckTime;
+		unsigned int fps;
+		unsigned int frames;
 };
 
 #endif
