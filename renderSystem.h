@@ -10,6 +10,7 @@ class renderSystem;
 
 #include "gameObject.h"
 #include <vector>
+#include <string>
 
 class renderSystem
 {
@@ -26,6 +27,8 @@ private:
 	void renderPlayer(Player*);
 	//inputs are the object and its SDL_Surface as read from png
 	void renderSprite(gameObject*, SDL_Surface*);
+	//inputs are message, xcoordinate and ycoordinate
+	void renderText(std::string, int, int);
 	
 public:
 	int init();

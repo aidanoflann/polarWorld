@@ -134,21 +134,12 @@ void renderSystem::draw( Game& game)
 						b.getCollisionRadius(),
 						250, 100, 100, 255);
 	}
-	
 	//render the score text
-	std::string score = "Score: " + std::to_string(game.getPlayer()->getNumKills());
-	char const* scoreChar = score.c_str();
-	SDL_Surface *scoreText = TTF_RenderText_Solid( font, scoreChar,  {0, 0, 0, 255} );
-	SDL_Rect scoreRect = { (int)(width/2) - 100 ,0,0,0};
-	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
+	renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), (int)(width/2) - 100, 0 );
 	
-	//render the fps text
-	std::string fps = "FPS: " + std::to_string(game.getFPS());
-	char const* FPSChar = fps.c_str();
-	SDL_Surface *fpsText = TTF_RenderText_Solid( font, FPSChar,  {0, 0, 0, 255} );
-	SDL_Rect fpsRect = { (int)(width/2) - 100 ,32,0,0};
-	SDL_BlitSurface( fpsText,NULL, SDL_GetWindowSurface(win), &fpsRect );
-	
+ 	//render the fps text
+	renderText("FPS: " + std::to_string(game.getFPS()), (int)(width/2) - 100, 32 );
+// 	
 	//Update the screen
 	SDL_RenderPresent(ren);
 }
@@ -161,29 +152,45 @@ void renderSystem::cleanup()
 	SDL_Quit();
 }
 
-//TODO: fix memory leak in these functions
 //TODO: also fix more subtle memory leaks elsewhere
 void renderSystem::renderPlayer(Player* player)
 {
 	//determine the target rectangle to render into
-// 	SDL_Rect playerRect = { (int)(width/2 + player->getR() * cos(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
-// 							 (int)(height/2 + player->getR() * sin(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
-// 							 32,32};
-// 	//generate the texture from the png data 
-// 	SDL_Texture* tex = SDL_CreateTextureFromSurface( ren, player_png);
-// 	//depending on the direction player is facing, point the texture right or left
-// 	if (player->getShootingRight())
-// 		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_NONE);
-// 	else
-// 		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_HORIZONTAL);
+	SDL_Rect playerRect = { (int)(width/2 + player->getR() * cos(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
+							 (int)(height/2 + player->getR() * sin(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
+							 32,32};
+	SDL_Texture* tex = SDL_CreateTextureFromSurface( ren, player_png);
+	//depending on the direction player is facing, point the texture right or left
+	if (player->getShootingRight())
+		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_NONE);
+	else
+		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_HORIZONTAL);
+	//cleanup
+	SDL_DestroyTexture(tex);
 }
 
 void renderSystem::renderSprite(gameObject* obj, SDL_Surface* png)
 {
-// 	SDL_Rect planetRect = { (int)(width/2 - obj->getCollisionRadius() - 5),
-// 							 (int)(height/2- obj->getCollisionRadius() - 5),
-// 							 (int)(obj->getCollisionRadius()*2)+10, (int)(obj->getCollisionRadius()*2)+10};
-// 	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, png);
-// 	//render the planet
-// 	SDL_RenderCopyEx(ren, tex, NULL, &planetRect, obj->getTheta(), NULL, SDL_FLIP_NONE);
+	//determine the target rectangle to render into
+	SDL_Rect planetRect = { (int)(width/2 - obj->getCollisionRadius() - 5),
+							 (int)(height/2- obj->getCollisionRadius() - 5),
+							 (int)(obj->getCollisionRadius()*2)+10, (int)(obj->getCollisionRadius()*2)+10};
+	
+	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, png);
+	//render the planet
+	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, obj->getTheta(), NULL, SDL_FLIP_NONE);
+	//cleanup
+	SDL_DestroyTexture(tex);
+}
+
+void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
+{
+	char const* scoreChar = message.c_str();
+	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {0, 0, 0, 255} );
+	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
+	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
+	
+	//cleanup
+	//delete scoreChar;
+	SDL_FreeSurface( scoreText );
 }
