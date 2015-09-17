@@ -34,6 +34,10 @@ int renderSystem::init()
 	//set width and height
 	width = 800;
 	height = 600;
+	cameraX = width/2;
+	cameraY = height/2;
+	cameraZoom = 1;
+	cameraTheta = 0;
 	
 	//first let's initialise SDL2, 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -90,6 +94,9 @@ int renderSystem::init()
 
 void renderSystem::draw( Game& game)
 {
+	//update camera attributes
+	cameraTheta = game.getPlayer()->getTheta() + 90;
+	
 	//First clear the renderer
 	SDL_RenderClear(ren);
 	
@@ -106,8 +113,8 @@ void renderSystem::draw( Game& game)
 	
 	//render the cloud
 	filledCircleRGBA(ren,
-					 width/2 + game.getCloud()->getR() * cos(game.getCloud()->getTheta() * radPerDeg),
-					 height/2 + game.getCloud()->getR() * sin(game.getCloud()->getTheta() * radPerDeg),
+					 cameraX + game.getCloud()->getR() * cos( (cameraTheta + game.getCloud()->getTheta()) * radPerDeg),
+					 cameraY + game.getCloud()->getR() * sin( (cameraTheta + game.getCloud()->getTheta()) * radPerDeg),
 					 game.getCloud()->getCollisionRadius(),
 					 100, 100, 100, 100);
 	
@@ -116,8 +123,8 @@ void renderSystem::draw( Game& game)
 	{
 		gameObject en = *((game.getEnemies())[i]);
 		filledCircleRGBA(ren,
-					width/2 + en.getR() * cos(en.getTheta() * radPerDeg),
-					height/2 + en.getR() * sin(en.getTheta() * radPerDeg),
+					cameraX + en.getR() * cos( (cameraTheta + en.getTheta()) * radPerDeg),
+					cameraY + en.getR() * sin( (cameraTheta + en.getTheta()) * radPerDeg),
 					en.getCollisionRadius(),
 					200, 100, 200, 200);
 	}
@@ -129,8 +136,8 @@ void renderSystem::draw( Game& game)
 	{
 		Bullet b = *((game.getBullets())[i]);
 		filledCircleRGBA(ren,
-						width/2 + b.getR() * cos(b.getTheta() * radPerDeg),
-						height/2 + b.getR() * sin(b.getTheta() * radPerDeg),
+						cameraX + b.getR() * cos( (cameraTheta + b.getTheta()) * radPerDeg),
+						cameraY + b.getR() * sin( (cameraTheta + b.getTheta()) * radPerDeg),
 						b.getCollisionRadius(),
 						250, 100, 100, 255);
 	}
@@ -139,11 +146,6 @@ void renderSystem::draw( Game& game)
 	
  	//render the fps text
 	renderText("FPS: " + std::to_string(game.getFPS()), (int)(width/2) - 100, 32 );
-// 	std::string fps = "FPS: " + std::to_string(game.getFPS());
-// 	char const* FPSChar = fps.c_str();
-// 	SDL_Surface *fpsText = TTF_RenderText_Solid( font, FPSChar,  {0, 0, 0, 255} );
-// 	SDL_Rect fpsRect = { (int)(width/2) - 100 ,32,0,0};
-// 	SDL_BlitSurface( fpsText,NULL, SDL_GetWindowSurface(win), &fpsRect );
 // 	
 	//Update the screen
 	SDL_RenderPresent(ren);
@@ -161,15 +163,15 @@ void renderSystem::cleanup()
 void renderSystem::renderPlayer(Player* player)
 {
 	//determine the target rectangle to render into
-	SDL_Rect playerRect = { (int)(width/2 + player->getR() * cos(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
-							 (int)(height/2 + player->getR() * sin(player->getTheta() * radPerDeg) - player->getCollisionRadius()),
+	SDL_Rect playerRect = { (int)(cameraX + player->getR() * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+							 (int)(cameraY + player->getR() * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 32,32};
 	SDL_Texture* tex = SDL_CreateTextureFromSurface( ren, player_png);
 	//depending on the direction player is facing, point the texture right or left
 	if (player->getShootingRight())
-		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_NONE);
+		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, 0, NULL, SDL_FLIP_NONE);
 	else
-		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, player->getTheta() + 90, NULL, SDL_FLIP_HORIZONTAL);
+		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, 0, NULL, SDL_FLIP_HORIZONTAL);
 	//cleanup
 	SDL_DestroyTexture(tex);
 }
@@ -177,13 +179,13 @@ void renderSystem::renderPlayer(Player* player)
 void renderSystem::renderSprite(gameObject* obj, SDL_Surface* png)
 {
 	//determine the target rectangle to render into
-	SDL_Rect planetRect = { (int)(width/2 - obj->getCollisionRadius() - 5),
-							 (int)(height/2- obj->getCollisionRadius() - 5),
+	SDL_Rect planetRect = { (int)(cameraX - obj->getCollisionRadius() - 5),
+							 (int)(cameraY - obj->getCollisionRadius() - 5),
 							 (int)(obj->getCollisionRadius()*2)+10, (int)(obj->getCollisionRadius()*2)+10};
 	
 	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, png);
 	//render the planet
-	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, obj->getTheta(), NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
 	//cleanup
 	SDL_DestroyTexture(tex);
 }

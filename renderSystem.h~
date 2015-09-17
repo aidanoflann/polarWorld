@@ -10,6 +10,7 @@ class renderSystem;
 
 #include "gameObject.h"
 #include <vector>
+#include <string>
 
 class renderSystem
 {

@@ -29,6 +29,10 @@ private:
 	void renderSprite(gameObject*, SDL_Surface*);
 	//inputs are message, xcoordinate and ycoordinate
 	void renderText(std::string, int, int);
+	int cameraX;
+	int cameraY;
+	double cameraZoom;
+	double cameraTheta;
 	
 public:
 	int init();
