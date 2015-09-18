@@ -16,6 +16,7 @@ GroundEnemy::GroundEnemy( double rToSet, double thetaToSet, double dir)  : gameO
 	r = rToSet;
 	theta = thetaToSet;
 	thetaVelDirection = dir;
+	enemyType = "ground";
 }
 void GroundEnemy::init()
 {

@@ -1,6 +1,8 @@
 #ifndef GUARD_gameObject
 #define GUARD_gameObject
 
+#include <string>
+
 class gameObject
 {
 protected:
@@ -19,6 +21,8 @@ protected:
 	double g;
 	//attribute for removing dead objects at the end of the while loop
 	bool markedForDeletion;
+	std::string enemyType; //sky or ground
+	
 
 public:
 	//tick function - performs all physics etc
@@ -38,6 +42,7 @@ public:
 	bool collidingWithGameObject(double, double, double);
 	bool getMarkedForDeletion();
 	void MarkForDeletion();
+	std::string getEnemyType();
 };
 
 #endif

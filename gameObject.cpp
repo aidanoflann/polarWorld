@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <string>
 
 void gameObject::init()
 {}
@@ -20,6 +21,7 @@ void gameObject::setTheta(double thetaToSet) {theta = thetaToSet;}
 void gameObject::setRVelDirection(double dirToSet) {rVelDirection = dirToSet;}
 void gameObject::setThetaVelDirection(double dirToSet) {thetaVelDirection = dirToSet;}
 double gameObject::getThetaVelDirection() {return thetaVelDirection;}
+std::string gameObject::getEnemyType() {return enemyType;}
 void gameObject::tick( double d_time ){}
 bool gameObject::collidingWithPlanet(double planetCollisionRadius){return 0;}
 void gameObject::collideWithPlanet(double planetCollisionRadius){}

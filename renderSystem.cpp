@@ -15,6 +15,8 @@
 #include "planet.h"
 #include "game.h"
 
+using std::cout; using std::endl;
+
 double radPerDeg = 0.01745329251;
 
 int renderSystem::init()
@@ -43,7 +45,7 @@ int renderSystem::init()
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		return 1;
+		exit(1);
 	}
 	
 	//set up window
@@ -53,7 +55,7 @@ int renderSystem::init()
 	{
 		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
-		return 1;
+		exit(1);
 	}
 	
 	//set up a renderer
@@ -63,7 +65,7 @@ int renderSystem::init()
 		SDL_DestroyWindow(win);
 		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
-		return 1;
+		exit(1);
 	}
 	
 	// Initialize SDL_ttf library
@@ -88,8 +90,38 @@ int renderSystem::init()
 	(*this).win = win;
 	
 	//load all textures
-	planet_png = IMG_Load("images/planet.png");
-	player_png = IMG_Load("images/player.png");
+	//player
+	SDL_Surface* player_png = IMG_Load("images/player.png");
+	player_texture = SDL_CreateTextureFromSurface( ren, player_png);
+	delete player_png;
+	
+	//planet
+	SDL_Surface* planet_png = IMG_Load("images/planet.png");
+	planet_texture = SDL_CreateTextureFromSurface( ren, planet_png );
+	delete planet_png;
+	
+	//background
+	SDL_Surface* background_png = IMG_Load("images/background.png");
+	background_texture = SDL_CreateTextureFromSurface(ren, background_png);
+	delete background_png;
+	SDL_Surface* backgroundSky_png = IMG_Load("images/backgroundSky.png");
+	backgroundSky_texture = SDL_CreateTextureFromSurface(ren, backgroundSky_png);
+	delete backgroundSky_png;
+	
+	//cloud
+	SDL_Surface* cloud_png = IMG_Load("images/cloud.png");
+	cloud_texture = SDL_CreateTextureFromSurface(ren, cloud_png);
+	delete cloud_png;
+	
+	//groundEnemy
+	SDL_Surface* groundEnemy_png = IMG_Load("images/groundEnemy.png");
+	groundEnemy_texture = SDL_CreateTextureFromSurface(ren, groundEnemy_png);
+	delete groundEnemy_png;
+	
+	//skyEnemy
+	SDL_Surface* skyEnemy_png = IMG_Load("images/skyEnemy.png");
+	skyEnemy_texture = SDL_CreateTextureFromSurface(ren, skyEnemy_png);
+	delete skyEnemy_png;
 }
 
 void renderSystem::draw( Game& game)
@@ -101,32 +133,28 @@ void renderSystem::draw( Game& game)
 	SDL_RenderClear(ren);
 	
 	//draw the background
-	SDL_SetRenderDrawColor((*this).ren, 255, 255, 255, 255);
-	SDL_Rect bg = {0,0, (int)std::round(width), (int)std::round(height)};
-	SDL_RenderFillRect((*this).ren, &bg);
-	
-	//render the Planet
-	renderSprite(game.getPlanet(), planet_png);
+	renderBackground();
+// 	SDL_SetRenderDrawColor((*this).ren, 255, 255, 255, 255);
+// 	SDL_Rect bg = {0,0, (int)std::round(width), (int)std::round(height)};
+// 	SDL_RenderFillRect((*this).ren, &bg);
 	
 	//render the player
 	renderPlayer(game.getPlayer());
 	
-	//render the cloud
-	filledCircleRGBA(ren,
-					 cameraX + game.getCloud()->getR() * cos( (-cameraTheta + game.getCloud()->getTheta()) * radPerDeg),
-					 cameraY + game.getCloud()->getR() * sin( (-cameraTheta + game.getCloud()->getTheta()) * radPerDeg),
-					 game.getCloud()->getCollisionRadius(),
-					 100, 100, 100, 100);
+	//render the Planet
+	renderPlanet(game.getPlanet(), planet_texture);
 	
-	//render each groundenemy
+	//render the cloud
+	renderCloud(game.getCloud(), cloud_texture);
+	
+	//render each enemy
 	for (int i = 0; i != (game.getEnemies()).size(); i++)
 	{
 		gameObject en = *((game.getEnemies())[i]);
-		filledCircleRGBA(ren,
-					cameraX + en.getR() * cos( (-cameraTheta + en.getTheta()) * radPerDeg),
-					cameraY + en.getR() * sin( (-cameraTheta + en.getTheta()) * radPerDeg),
-					en.getCollisionRadius(),
-					200, 100, 200, 200);
+		if (en.getEnemyType() == "ground")
+			renderEnemy(&en, groundEnemy_texture);
+		else if (en.getEnemyType() == "sky")
+			renderEnemy(&en, skyEnemy_texture);
 	}
 	
 	//render each bullet
@@ -142,10 +170,10 @@ void renderSystem::draw( Game& game)
 						250, 100, 100, 255);
 	}
 	//render the score text
-	renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), (int)(width/2) - 100, 0 );
+	renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
 	
  	//render the fps text
-	renderText("FPS: " + std::to_string(game.getFPS()), (int)(width/2) - 100, 32 );
+	renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 // 	
 	//Update the screen
 	SDL_RenderPresent(ren);
@@ -159,35 +187,55 @@ void renderSystem::cleanup()
 	SDL_Quit();
 }
 
-//TODO: also fix more subtle memory leaks elsewhere
 void renderSystem::renderPlayer(Player* player)
 {
 	//determine the target rectangle to render into
-	SDL_Rect playerRect = { (int)(cameraX + player->getR() * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 (int)(cameraY + player->getR() * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 32,32};
-	SDL_Texture* tex = SDL_CreateTextureFromSurface( ren, player_png);
+	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+							 38,38};
 	//depending on the direction player is facing, point the texture right or left
+	SDL_Rect playerRect;
 	if (player->getShootingRight())
-		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, 0, NULL, SDL_FLIP_NONE);
-	else
-		SDL_RenderCopyEx(ren, tex, NULL, &playerRect, 0, NULL, SDL_FLIP_HORIZONTAL);
-	//cleanup
-	SDL_DestroyTexture(tex);
+		SDL_Rect playerRect = {0,0, 32, 32};
+	else 
+		SDL_Rect playerRect = {32, 0, 32, 32};
+	//render
+	SDL_RenderCopy(ren, player_texture, &playerRect, &targetRect);
 }
 
-void renderSystem::renderSprite(gameObject* obj, SDL_Surface* png)
+void renderSystem::renderPlanet(gameObject* obj, SDL_Texture* tex)
 {
 	//determine the target rectangle to render into
 	SDL_Rect planetRect = { (int)(cameraX - obj->getCollisionRadius() - 5),
 							 (int)(cameraY - obj->getCollisionRadius() - 5),
 							 (int)(obj->getCollisionRadius()*2)+10, (int)(obj->getCollisionRadius()*2)+10};
-	
-	SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, png);
 	//render the planet
-	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
-	//cleanup
-	SDL_DestroyTexture(tex);
+	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
+}
+
+void renderSystem::renderCloud(gameObject* cloud, SDL_Texture* tex)
+{
+	//determine the target rectangle to render into
+	SDL_Rect targetRect = { (int)(cameraX + (cloud->getR() ) * cos( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
+							 (int)(cameraY + (cloud->getR() ) * sin( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
+							 (int)(cloud->getCollisionRadius()*2.5), (int)(cloud->getCollisionRadius()*2.5)};
+	//render the planet
+	SDL_RenderCopy(ren, tex , NULL, &targetRect);
+}
+
+void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex)
+{
+	//determine the target rectangle to render into
+	SDL_Rect targetRect = { (int)(cameraX + (obj->getR() ) * cos( (-cameraTheta + obj->getTheta()) * radPerDeg) - obj->getCollisionRadius()),
+							 (int)(cameraY + (obj->getR() ) * sin( (-cameraTheta + obj->getTheta()) * radPerDeg) - obj->getCollisionRadius()),
+							 (int)(obj->getCollisionRadius()*2), (int)(obj->getCollisionRadius()*2)};
+	SDL_Rect enemyRect;
+	if (obj->getThetaVelDirection() == 1)
+		SDL_Rect enemyRect = {0,0, 20, 20};
+	else if (obj->getThetaVelDirection() == -1)
+		SDL_Rect enemyRect = {20, 0, 20, 20};
+	//render
+	SDL_RenderCopyEx(ren, tex , &enemyRect, &targetRect, 90 -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
 }
 
 void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
@@ -200,4 +248,16 @@ void renderSystem::renderText(std::string message, int xcoordinate, int ycoordin
 	//cleanup
 	//delete scoreChar;
 	SDL_FreeSurface( scoreText );
+}
+
+void renderSystem::renderBackground()
+{
+		//determine the target rectangle to render into
+	SDL_Rect targetRect = { -100, -200, 1000, 1000};
+	SDL_Rect backgroundRect = {0, 40, 250, 170};
+	//render the blue background
+	SDL_RenderCopy(ren, backgroundSky_texture, NULL, NULL);
+	//rotate and render the clouds
+	SDL_RenderCopyEx(ren, background_texture , NULL, NULL, -cameraTheta*0.7, NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopy(ren, tex , NULL, &screenRect);
 }
