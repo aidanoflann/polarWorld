@@ -11,6 +11,8 @@ gameObject::gameObject()
 {
 	g = -0.002;
 	markedForDeletion = 0;
+	animationFrame = 0;
+	frameTime = 0;
 }
 
 double gameObject::getCollisionRadius() const {return collisionRadius;}
@@ -27,7 +29,18 @@ bool gameObject::collidingWithPlanet(double planetCollisionRadius){return 0;}
 void gameObject::collideWithPlanet(double planetCollisionRadius){}
 bool gameObject::getMarkedForDeletion(){ return markedForDeletion;}
 void gameObject::MarkForDeletion(){ markedForDeletion = 1;}
+int gameObject::getAnimationFrame(){ return animationFrame; }
 
+ //frame duration is in ms
+void gameObject::updateAnimationFrame(double d_time, double frameDuration, int max)
+{
+	frameTime += d_time;
+	if ( frameTime > frameDuration )
+	{
+		animationFrame = (animationFrame + 1) % max;
+		frameTime -= frameDuration;
+	}
+}
 
 bool gameObject::collidingWithGameObject(double objR, double objTheta, double objCollisionRadius)
 {

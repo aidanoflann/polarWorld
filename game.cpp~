@@ -100,7 +100,6 @@ void Game::run()
 						{
 							restart();
 						}
-						std::cout << player->getShootingRight() << std::endl;
 					}
 				case SDL_KEYUP:
 					//workaround for SDL2's issue on some systems with events being both KEYUP and KEYDOWN
@@ -228,6 +227,7 @@ void Game::restart()
 
 void Game::gameOver()
 {
+	std::cout << player->getKills() << std::endl;
 	restart();
 }
 

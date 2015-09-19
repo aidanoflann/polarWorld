@@ -11,6 +11,8 @@ gameObject::gameObject()
 {
 	g = -0.002;
 	markedForDeletion = 0;
+	animationFrame = 0;
+	frameTime = 0;
 }
 
 double gameObject::getCollisionRadius() const {return collisionRadius;}
@@ -21,13 +23,25 @@ void gameObject::setTheta(double thetaToSet) {theta = thetaToSet;}
 void gameObject::setRVelDirection(double dirToSet) {rVelDirection = dirToSet;}
 void gameObject::setThetaVelDirection(double dirToSet) {thetaVelDirection = dirToSet;}
 double gameObject::getThetaVelDirection() {return thetaVelDirection;}
-std::string gameObject::getThetaVelDirection() {return thetaVelDirection;}
+std::string gameObject::getEnemyType() {return enemyType;}
 void gameObject::tick( double d_time ){}
 bool gameObject::collidingWithPlanet(double planetCollisionRadius){return 0;}
 void gameObject::collideWithPlanet(double planetCollisionRadius){}
 bool gameObject::getMarkedForDeletion(){ return markedForDeletion;}
 void gameObject::MarkForDeletion(){ markedForDeletion = 1;}
+int gameObject::getAnimationFrame(){ return animationFrame; }
 
+ //frame duration is in ms
+void gameObject::updateAnimationFrame(double d_time, double frameDuration, int max)
+{
+	frameTime += d_time;
+	std::cout << frameTime << " " << frameDuration << std::endl;
+	if ( frameTime > frameDuration )
+	{
+		animationFrame = (animationFrame + 1) % max;
+		frameTime -= frameDuration;
+	}
+}
 
 bool gameObject::collidingWithGameObject(double objR, double objTheta, double objCollisionRadius)
 {

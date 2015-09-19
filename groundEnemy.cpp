@@ -30,6 +30,8 @@ void GroundEnemy::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
+	
+	updateAnimationFrame(d_time, 100, 3);
 }
 
 bool GroundEnemy::collidingWithPlanet(double planetCollisionRadius)
@@ -42,5 +44,5 @@ void GroundEnemy::collideWithPlanet(double planetCollisionRadius)
 	state = Grounded;
 	rVel = 0;
 	rVelDirection = 0;
-	r = collisionRadius + planetCollisionRadius;
+	r = collisionRadius + planetCollisionRadius - 5;
 }

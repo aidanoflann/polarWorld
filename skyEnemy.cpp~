@@ -16,6 +16,7 @@ SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir)
 	r = rToSet;
 	theta = thetaToSet;
 	thetaVelDirection = dir;
+	enemyType = "sky";
 }
 void SkyEnemy::init()
 {
@@ -29,6 +30,8 @@ void SkyEnemy::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
+	
+	updateAnimationFrame(d_time, 100, 3);
 }
 //same as groundenemy, but skyenemies stop falling higher up
 bool SkyEnemy::collidingWithPlanet(double planetCollisionRadius)

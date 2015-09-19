@@ -227,6 +227,7 @@ void Game::restart()
 
 void Game::gameOver()
 {
+	std::cout << player->getNumKills() << std::endl;
 	restart();
 }
 

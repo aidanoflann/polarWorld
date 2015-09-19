@@ -30,6 +30,8 @@ void SkyEnemy::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
+	
+	updateAnimationFrame(d_time, 100, 3);
 }
 //same as groundenemy, but skyenemies stop falling higher up
 bool SkyEnemy::collidingWithPlanet(double planetCollisionRadius)
@@ -42,5 +44,5 @@ void SkyEnemy::collideWithPlanet(double planetCollisionRadius)
 	state = Grounded;
 	rVel = 0;
 	rVelDirection = 0;
-	r = collisionRadius + planetCollisionRadius + 50;
+	r = collisionRadius + planetCollisionRadius + 45;
 }

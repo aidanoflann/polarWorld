@@ -22,6 +22,8 @@ protected:
 	//attribute for removing dead objects at the end of the while loop
 	bool markedForDeletion;
 	std::string enemyType; //sky or ground
+	int animationFrame; //cycle through animations
+	double frameTime;
 	
 
 public:
@@ -43,6 +45,8 @@ public:
 	bool getMarkedForDeletion();
 	void MarkForDeletion();
 	std::string getEnemyType();
+	int getAnimationFrame();
+	void updateAnimationFrame(double, double, int);
 };
 
 #endif
