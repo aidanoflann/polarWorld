@@ -14,6 +14,7 @@
 #include "gameObject.h"
 #include "planet.h"
 #include "game.h"
+#include "player.h"
 
 using std::cout; using std::endl;
 
@@ -191,13 +192,24 @@ void renderSystem::renderPlayer(Player* player)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 38,38};
+							 40,40};
 	//depending on the direction player is facing, point the texture right or left
+	int frame = player->getAnimationFrame();
 	SDL_Rect playerRect;
 	if (player->getShootingRight())
-		SDL_Rect playerRect = {0,0, 32, 32};
-	else 
-		SDL_Rect playerRect = {32, 0, 32, 32};
+	{
+		if (player->ifGrounded() )
+			SDL_Rect playerRect = {0,frame*20, 20, 20};
+		else if (player->ifMidair())
+			SDL_Rect playerRect = {40,frame*20, 20, 20};
+	}
+	else
+	{
+		if (player->ifGrounded())
+			SDL_Rect playerRect = {20,frame*20, 20, 20};
+		else if (player->ifMidair())
+			SDL_Rect playerRect = {60,frame*20, 20, 20};
+	}
 	//render
 	SDL_RenderCopy(ren, player_texture, &playerRect, &targetRect);
 }

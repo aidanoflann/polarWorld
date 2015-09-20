@@ -29,6 +29,8 @@ void Player::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
+	
+	updateAnimationFrame(d_time, 100, 5);
 }
 
 bool Player::collidingWithPlanet(double planetCollisionRadius)
@@ -56,3 +58,8 @@ void Player::jump()
 
 int Player::getNumKills(){return numKills;}
 void Player::addKill(){ numKills++; }
+bool Player::getShootingRight() {return shootingRight;}
+void Player::setShootingRight(bool shootingRightToSet) { shootingRight = shootingRightToSet;}
+bool Player::ifMidair() { return (state == Midair) }
+bool Player::ifGrounded() { return (state == Grounded) }
+bool Player::ifRunning() { return (state == Running) }

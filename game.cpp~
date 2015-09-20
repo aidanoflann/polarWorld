@@ -86,13 +86,13 @@ void Game::run()
 						//if left is pressed, shoot left
 						if ( event.key.keysym.sym == SDLK_LEFT)
 						{
-							bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , -1 ) );
+							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() , -1 ) );
 							player->setShootingRight(0);
 						}
 						//if right is pressed, shoot right
 						if ( event.key.keysym.sym == SDLK_RIGHT)
 						{
-							bullets.push_back( new Bullet( (*player).getR() , (*player).getTheta() , 1 ) );
+							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() , 1 ) );
 							player->setShootingRight(1);
 						}
 						//if r is pressed, reset level
@@ -227,7 +227,7 @@ void Game::restart()
 
 void Game::gameOver()
 {
-	std::cout << player->getKills() << std::endl;
+	std::cout << player->getNumKills() << std::endl;
 	restart();
 }
 

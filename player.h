@@ -12,6 +12,7 @@ private:
 	{
 		Midair,
 		Grounded,
+		Running,
 	};
 	State state;
 	//rage, determines bullet speed as game progresses
@@ -33,6 +34,9 @@ public:
 	void addKill();
 	void setShootingRight(bool);
 	bool getShootingRight();
+	bool ifMidair();
+	bool ifGrounded();
+	bool ifRunning();
 };
 
 #endif
