@@ -7,7 +7,7 @@
 //constructor
 Cloud::Cloud(double rToSet, double thetaToSet)
 {
-	timeNow = SDL_GetTicks();
+	timeNow = 0;
 	spawnCoolDown = 1000; //ms
 	rVel = 0;
 	thetaVel = 0.03;

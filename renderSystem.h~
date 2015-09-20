@@ -22,6 +22,7 @@ private:
 	SDL_Texture* player_texture;
 	SDL_Texture* cloud_texture;
 	SDL_Texture* groundEnemy_texture;
+	SDL_Texture* skyEnemy_texture;
 	SDL_Texture* background_texture;
 	SDL_Texture* backgroundSky_texture;
 	TTF_Font *font;
@@ -44,7 +45,7 @@ private:
 public:
 	int init();
 	void draw(Game&);
-	void cleanup();
+	void cleanup(bool);
 };
 
 #endif

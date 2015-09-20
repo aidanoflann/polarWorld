@@ -10,9 +10,10 @@ public:
 	//constructor
 	Bullet( double, double, double );
 	void tick(double);
+	double getLifeTime();
+	double getTimeAlive();
 	
 private:
-	double startCDTimer;
 	double lifeTime;
 };
 

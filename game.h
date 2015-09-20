@@ -21,9 +21,9 @@ class Game
 	//member functions
 	public:
 		//set up SDL window etc
-		void init();
+		void init(bool);
 		//close down SDL handlers
-		void cleanup();
+		void cleanup(bool);
 		//main game loop
 		void run();
 		//gets for each object
@@ -36,6 +36,7 @@ class Game
 		void restart();
 		void gameOver();
 		unsigned int getFPS();
+		bool isPaused();
 
 	//attributes
 	private:
@@ -56,6 +57,12 @@ class Game
 		unsigned int fpsCheckTime;
 		unsigned int fps;
 		unsigned int frames;
+		enum State
+		{
+			Paused,
+			Running,
+		};
+		State state;
 };
 
 #endif

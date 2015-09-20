@@ -10,12 +10,12 @@ public:
 	//constructor
 	Bullet( double, double, double );
 	void tick(double);
-	double getTimeBorn();
 	double getLifeTime();
+	double getTimeAlive();
 	
 private:
-	double timeBorn;
 	double lifeTime;
+	double timeAlive;
 };
 
 #endif

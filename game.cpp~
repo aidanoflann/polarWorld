@@ -6,7 +6,7 @@
 #include "renderSystem.h"
 #include "bullet.h"
 
-void Game::init()
+void Game::init(bool reset)
 {
 	quit_state = 0;
 	d_time = 0;
@@ -14,8 +14,11 @@ void Game::init()
 	fps = 0;
 	fpsCheckTime = 0;
 	//initialise the rendersystem
-	renderer = new renderSystem();
-	(*renderer).init();
+	if (!reset)
+	{
+		renderer = new renderSystem();
+		(*renderer).init();
+	}
 	//initialise the level's planet
 	planet = new Planet();
 	(*planet).init();
@@ -25,9 +28,10 @@ void Game::init()
 	cloud = new Cloud(250, player->getTheta() + 180);
 	std::vector<gameObject> enemies;
 	std::vector<Bullet> bullets;
+	state = Running;
 }
 
-void Game::cleanup()
+void Game::cleanup(bool reset)
 {
 	delete player;
 	delete planet;
@@ -36,8 +40,11 @@ void Game::cleanup()
 	enemies.clear();
 	for (int i = 0; i < bullets.size(); i++) { delete bullets[i];}
 	bullets.clear();
-	(*renderer).cleanup();
-	delete renderer;
+	if (!reset)
+	{
+		(*renderer).cleanup();
+		delete renderer;
+	}
 }
 
 void Game::run()
@@ -45,21 +52,6 @@ void Game::run()
 	SDL_Event event;
 	while( !quit_state )
 	{
-		//TODO: get current time in nanoseconds
-		//calculate the time since last tick
-		unsigned int currentTime = SDL_GetTicks();
-		(*this).d_time = currentTime - lastTime;
-		lastTime = currentTime;
-		
-		//update fps
-		frames ++;
-		if ( (currentTime - fpsCheckTime) > 1000)
-		{
-			fps = frames;
-			fpsCheckTime += 1000;
-			frames = 0;
-		}
-		
 		//handle inputs, SDL_PolleEvent will return false when there are none
 		while(SDL_PollEvent( &event ))
 		{
@@ -74,32 +66,41 @@ void Game::run()
 					//we don't want holding down the key to repeat inputs:
 					if (!event.key.repeat)
 					{
-						//if left is pressed, set the player's thetaDir to -1
-						if ( event.key.keysym.sym == SDLK_a)
-							(*player).setThetaVelDirection( player->getThetaVelDirection() - 1 );
-						//if right is pressed, set the player's thetaDir to -1
-						if ( event.key.keysym.sym == SDLK_d)
-							(*player).setThetaVelDirection( player->getThetaVelDirection() + 1 );
-						//if up or space is pressed, jump!
-						if ( event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
-							(*player).jump();
-						//if left is pressed, shoot left
-						if ( event.key.keysym.sym == SDLK_LEFT)
+						//we don't want to register most events if the game is paused
+						if (state != Paused)
 						{
-							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() , -1 ) );
-							player->setShootingRight(0);
+							//if left is pressed, set the player's thetaDir to -1
+							if ( event.key.keysym.sym == SDLK_a)
+								(*player).setThetaVelDirection( player->getThetaVelDirection() - 1 );
+							//if right is pressed, set the player's thetaDir to -1
+							if ( event.key.keysym.sym == SDLK_d)
+								(*player).setThetaVelDirection( player->getThetaVelDirection() + 1 );
+							//if up or space is pressed, jump!
+							if ( event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+								(*player).jump();
+							//if left is pressed, shoot left
+							if ( event.key.keysym.sym == SDLK_LEFT)
+							{
+								bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() - 10 , -1 ) );
+								player->setShootingRight(0);
+							}
+							//if right is pressed, shoot right
+							if ( event.key.keysym.sym == SDLK_RIGHT)
+							{
+								bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() + 10 , 1 ) );
+								player->setShootingRight(1);
+							}
+							//if r is pressed, reset level
+							if ( event.key.keysym.sym == SDLK_r)
+							{
+								restart();
+							}
 						}
-						//if right is pressed, shoot right
-						if ( event.key.keysym.sym == SDLK_RIGHT)
-						{
-							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() , 1 ) );
-							player->setShootingRight(1);
-						}
-						//if r is pressed, reset level
-						if ( event.key.keysym.sym == SDLK_r)
-						{
-							restart();
-						}
+						//if x is pressed, pause
+						if (event.key.keysym.sym == SDLK_x && state == Running)
+							state = Paused;
+						else if (event.key.keysym.sym == SDLK_x && state == Paused)
+							state = Running;
 					}
 				case SDL_KEYUP:
 					//workaround for SDL2's issue on some systems with events being both KEYUP and KEYDOWN
@@ -121,108 +122,127 @@ void Game::run()
 					}
 			}
 		}
-		//perform calculations
-		//tick player
-		(*player).tick(d_time);
 		
-		//run player collision checks
-		if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
-			(*player).collideWithPlanet( (*planet).getCollisionRadius() );
+		//TODO: get current time in nanoseconds
+		//calculate the time since last tick
+		unsigned int currentTime = SDL_GetTicks();
+		(*this).d_time = currentTime - lastTime;
+		lastTime = currentTime;
 		
-		//tick cloud
-		(*cloud).tick(d_time, (*player).getTheta());
-		//spawn a new enemy
-		//TODO:uncomment this to spawn
-		if ( cloud->doSpawn(d_time, player->getNumKills()) )
+		//update fps
+		frames ++;
+		if ( (currentTime - fpsCheckTime) > 1000)
 		{
-			//randomly choose between ground and sky enemies, and between left or right velocities
-			int coin = rand()%4;
-			if (coin == 0)
-					enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), 1) );
-			else if (coin == 1)
-					enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), -1) );
-			else if (coin == 2)
-					enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), 1) );
-			else if (coin == 3)
-					enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), -1) );
+			fps = frames;
+			fpsCheckTime += 1000;
+			frames = 0;
 		}
-		//tick all bullets
-		for (int i = 0; i < (bullets).size(); i++)
+		
+		//perform calculations if unpaused
+		if (state == Running)
 		{
-			//tick all bullets
-			bullets[i]->tick(d_time);
+			//tick player
+			(*player).tick(d_time);
 			
-			//check collisions with player
-			if ( SDL_GetTicks() - bullets[i]->getTimeBorn() > 500 && ( bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ) ) )
-				gameOver();
-			//remove bullets that are too damn old
-			else if ( (SDL_GetTicks() - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime() )
-					bullets[i]->MarkForDeletion();
-					
-			//check collisions with enemies
-			for( int j = 0; j < enemies.size(); j++)
+			//run player collision checks
+			if ((*player).collidingWithPlanet( (*planet).getCollisionRadius() ))
+				(*player).collideWithPlanet( (*planet).getCollisionRadius() );
+			
+			//tick cloud
+			(*cloud).tick(d_time, (*player).getTheta());
+			//spawn a new enemy
+			
+			if ( cloud->doSpawn(d_time, player->getNumKills()) )
 			{
-				if ( bullets[i]->collidingWithGameObject( enemies[j]->getR(), enemies[j]->getTheta(), enemies[j]->getCollisionRadius() ) )
+				//randomly choose between ground and sky enemies, and between left or right velocities
+				int coin = rand()%4;
+				if (coin == 0)
+						enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), 1) );
+				else if (coin == 1)
+						enemies.push_back( new GroundEnemy( cloud->getR(), cloud->getTheta(), -1) );
+				else if (coin == 2)
+						enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), 1) );
+				else if (coin == 3)
+						enemies.push_back( new SkyEnemy( cloud->getR(), cloud->getTheta(), -1) );
+			}
+			//tick all bullets
+			for (int i = 0; i < (bullets).size(); i++)
+			{
+				//tick all bullets
+				bullets[i]->tick(d_time);
+				
+				//check collisions with player
+				if ( bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ) )
+					gameOver();
+				//remove bullets that are too damn old
+				else if ( (currentTime - bullets[i]->getTimeBorn()) > bullets[i]->getLifeTime() )
+						bullets[i]->MarkForDeletion();
+						
+				//check collisions with enemies
+				for( int j = 0; j < enemies.size(); j++)
 				{
-					bullets[i]->MarkForDeletion();
-					enemies[j]->MarkForDeletion();
-					player->addKill();
+					if ( bullets[i]->collidingWithGameObject( enemies[j]->getR(), enemies[j]->getTheta(), enemies[j]->getCollisionRadius() ) )
+					{
+						bullets[i]->MarkForDeletion();
+						enemies[j]->MarkForDeletion();
+						player->addKill();
+					}
 				}
 			}
-		}
-		
-		//tick all enemies
-		for (int i = 0; i < (enemies).size(); i++)
-		{
-			enemies[i]->tick(d_time);
-			//run groundEnemy collision checks
-			if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
-				enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
-			//run player collision checks
-			if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() ) )
-				gameOver();
-		}
-		
-		//remove objects which have been marked for deletion
-		//bullets
-		for (int i = 0; i < bullets.size(); i++)
-		{
-			if (bullets[i]->getMarkedForDeletion())
+			
+			//tick all enemies
+			for (int i = 0; i < (enemies).size(); i++)
 			{
-				//delete the object bullets[i] is pointing to
-				delete bullets[i];
-				//remove the pointer from the bullets array
-				bullets.erase(bullets.begin() + i);
-				//decrement i by 1 so as not to skip over the next element
-				i--;
+				enemies[i]->tick(d_time);
+				//run groundEnemy collision checks
+				if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
+					enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
+				//run player collision checks
+				if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() ) )
+					gameOver();
 			}
-		}
-		//enemies
-		for (int i = 0; i < enemies.size(); i++)
-		{
-			if (enemies[i]->getMarkedForDeletion())
+			
+			//remove objects which have been marked for deletion
+			//bullets
+			for (int i = 0; i < bullets.size(); i++)
 			{
-				//delete the object bullets[i] is pointing to
-				delete enemies[i];
-				//remove the pointer from the bullets array
-				enemies.erase(enemies.begin() + i);
-				//decrement i by 1 so as not to skip over the next element
-				i--;
+				if (bullets[i]->getMarkedForDeletion())
+				{
+					//delete the object bullets[i] is pointing to
+					delete bullets[i];
+					//remove the pointer from the bullets array
+					bullets.erase(bullets.begin() + i);
+					//decrement i by 1 so as not to skip over the next element
+					i--;
+				}
 			}
-		}
-		
+			//enemies
+			for (int i = 0; i < enemies.size(); i++)
+			{
+				if (enemies[i]->getMarkedForDeletion())
+				{
+					//delete the object bullets[i] is pointing to
+					delete enemies[i];
+					//remove the pointer from the bullets array
+					enemies.erase(enemies.begin() + i);
+					//decrement i by 1 so as not to skip over the next element
+					i--;
+				}
+			}
+		} else SDL_Delay(10);//endif Running
 		//pass objects vector to renderer
 		(*renderer).draw( (*this) );
 		
 	}
 	
-	cleanup();
+	cleanup(0);
 }
 
 void Game::restart()
 {
-	cleanup();
-	init();
+	cleanup(1);
+	init(1);
+	lastTime = SDL_GetTicks();
 }
 
 void Game::gameOver()
@@ -238,3 +258,4 @@ std::vector<Bullet*> Game::getBullets(){return bullets;}
 std::vector<gameObject*> Game::getEnemies(){return enemies;}
 unsigned int Game::getFPS() { return fps; }
 void Game::addBullet(){}
+bool Game::isPaused(){ return (state == Paused); }

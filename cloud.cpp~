@@ -7,7 +7,7 @@
 //constructor
 Cloud::Cloud(double rToSet, double thetaToSet)
 {
-	timeNow = SDL_GetTicks();
+	timeNow = 0;
 	spawnCoolDown = 1000; //ms
 	rVel = 0;
 	thetaVel = 0.03;
@@ -36,12 +36,13 @@ void Cloud::tick(double d_time, double playerTheta)
 	}
 	theta = playerTheta + 180 + thetaOffset;
 	
-	updateAnimationFrame(d_time, 200, 5);
+	updateAnimationFrame(d_time, 150, 5);
 }
 
 bool Cloud::doSpawn(double d_time, int playerKills)
 {
 	spawnCoolDown = std::max(1000 - playerKills*10, 100 );
+	std::cout << timeNow << std::endl;
 	timeNow += d_time;
 	bool doSpawn = timeNow > spawnCoolDown;
 	if (doSpawn)

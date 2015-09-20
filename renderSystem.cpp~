@@ -135,9 +135,6 @@ void renderSystem::draw( Game& game)
 	
 	//draw the background
 	renderBackground();
-// 	SDL_SetRenderDrawColor((*this).ren, 255, 255, 255, 255);
-// 	SDL_Rect bg = {0,0, (int)std::round(width), (int)std::round(height)};
-// 	SDL_RenderFillRect((*this).ren, &bg);
 	
 	//render the player
 	renderPlayer(game.getPlayer());
@@ -174,9 +171,22 @@ void renderSystem::draw( Game& game)
 	
  	//render the fps text
 	renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
-// 	
+
+	//if the game is paused, overlay a semitransparent black rect
+	if ( game.isPaused() )
+	{
+		filledCircleRGBA(ren,
+						0,
+						0,
+						1000,
+						0, 0, 0, 100);
+			//render pause text
+		renderText("Paused", width/2 - 25, height/2 - 10 );
+	}
+	
 	//Update the screen
 	SDL_RenderPresent(ren);
+	
 }
 
 void renderSystem::cleanup()
@@ -237,7 +247,7 @@ void renderSystem::renderCloud(gameObject* cloud, SDL_Texture* tex)
 	int frame = cloud->getAnimationFrame();
 	SDL_Rect cloudRect = {0, frame*25, 25, 25};
 	//render the planet
-	SDL_RenderCopyEx(ren, tex , &cloudRect, &targetRect, 90 - cameraTheta + cloud->getTheta()*1.1, NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(ren, tex , &cloudRect, &targetRect, 90 - cameraTheta + cloud->getTheta(), NULL, SDL_FLIP_NONE);
 }
 
 void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex)
