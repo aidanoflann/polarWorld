@@ -13,6 +13,7 @@ gameObject::gameObject()
 	markedForDeletion = 0;
 	animationFrame = 0;
 	frameTime = 0;
+	explodingDuration = 500;
 }
 
 double gameObject::getCollisionRadius() const {return collisionRadius;}
@@ -30,6 +31,10 @@ void gameObject::collideWithPlanet(double planetCollisionRadius){}
 bool gameObject::getMarkedForDeletion(){ return markedForDeletion;}
 void gameObject::MarkForDeletion(){ markedForDeletion = 1;}
 int gameObject::getAnimationFrame(){ return animationFrame; }
+bool gameObject::isNotExploding()
+{
+	return (state != Exploding);
+}
 
  //frame duration is in ms
 void gameObject::updateAnimationFrame(double d_time, double frameDuration, int max)
@@ -40,6 +45,12 @@ void gameObject::updateAnimationFrame(double d_time, double frameDuration, int m
 		animationFrame = (animationFrame + 1) % max;
 		frameTime -= frameDuration;
 	}
+}
+
+void gameObject::startExploding()
+{
+	state = Exploding;
+	animationFrame = 0;
 }
 
 bool gameObject::collidingWithGameObject(double objR, double objTheta, double objCollisionRadius)

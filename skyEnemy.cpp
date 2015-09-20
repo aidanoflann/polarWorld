@@ -17,6 +17,7 @@ SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir)
 	theta = thetaToSet;
 	thetaVelDirection = dir;
 	enemyType = "sky";
+	timeExploding = 0;
 }
 void SkyEnemy::init()
 {
@@ -24,14 +25,21 @@ void SkyEnemy::init()
 
 void SkyEnemy::tick(double d_time)
 {
-	theta = theta + thetaVelDirection*thetaVel*d_time;
+	if (state != Exploding)
+		theta = theta + thetaVelDirection*thetaVel*d_time;
+	else
+	{
+		timeExploding += d_time;
+		if (timeExploding > explodingDuration)
+			markedForDeletion = 1;
+	}
 	if (state == Midair)
 	{
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
-	
-	updateAnimationFrame(d_time, 100, 3);
+	int maxFrames = (state == Exploding)? 6: 3;
+	updateAnimationFrame(d_time, 100, maxFrames);
 }
 //same as groundenemy, but skyenemies stop falling higher up
 bool SkyEnemy::collidingWithPlanet(double planetCollisionRadius)

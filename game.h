@@ -34,9 +34,12 @@ class Game
 		std::vector<gameObject*> getEnemies();
 		void addBullet();
 		void restart();
-		void gameOver();
+		void gameOver(bool);
 		unsigned int getFPS();
 		bool isPaused();
+		bool isGameOverEnemy();
+		bool isGameOverSelf();
+		bool isRunning();
 
 	//attributes
 	private:
@@ -61,6 +64,8 @@ class Game
 		{
 			Paused,
 			Running,
+			GameOverSelf,
+			GameOverEnemy,
 		};
 		State state;
 };

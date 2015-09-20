@@ -6,12 +6,8 @@
 class GroundEnemy : public gameObject
 {
 	//state attribute, i.e. whether groundEnemy is midair or not (maybe invulnerable etc)
-	enum State
-	{
-		Midair,
-		Grounded,
-	};
-	State state;
+
+	double timeExploding;
 	
 public:
 	void init();

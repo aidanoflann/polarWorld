@@ -60,7 +60,7 @@ int renderSystem::init()
 	}
 	
 	//set up a renderer
-	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 0);
+	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_SOFTWARE || SDL_RENDERER_PRESENTVSYNC);
 	if (ren == nullptr)
 	{
 		SDL_DestroyWindow(win);
@@ -166,11 +166,6 @@ void renderSystem::draw( Game& game)
 						b.getCollisionRadius(),
 						250, 100, 100, 255);
 	}
-	//render the score text
-	renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
-	
- 	//render the fps text
-	renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 
 	//if the game is paused, overlay a semitransparent black rect
 	if ( game.isPaused() )
@@ -181,7 +176,36 @@ void renderSystem::draw( Game& game)
 						1000,
 						0, 0, 0, 100);
 			//render pause text
-		renderText("Paused", width/2 - 25, height/2 - 10 );
+		renderText("Paused", width/2 - 30, height/2 - 10 );
+	}
+	
+	if ( game.isGameOverEnemy() )
+	{
+		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+		//render pause text
+		renderText("The planet belongs to the aliens now.", width/2 - 185, height/2 - 25);
+		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
+		renderText("Press R to restart.", width/2 - 100, height/2 + 25);
+	}
+	
+	if ( game.isGameOverSelf() )
+	{
+		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+		//render pause text
+		renderText("You were the monster all along.", width/2 - 150, height/2 - 25);
+		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
+		renderText("Press R to restart.", width/2 - 100, height/2 + 25);
+	}
+	
+	if ( game.isRunning() )
+	{
+		//render the score text
+		renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
+		
+		//render the fps text
+		renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 	}
 	
 	//Update the screen
@@ -258,10 +282,20 @@ void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex)
 							 (int)(obj->getCollisionRadius()*2), (int)(obj->getCollisionRadius()*2)};
 	SDL_Rect enemyRect;
 	int frame = obj->getAnimationFrame();
-	if (obj->getThetaVelDirection() == 1)
-		SDL_Rect enemyRect = {0,frame*20, 20, 20};
-	else if (obj->getThetaVelDirection() == -1)
-		SDL_Rect enemyRect = {20, frame*20, 20, 20};
+	if (obj->isNotExploding())
+	{
+		if (obj->getThetaVelDirection() == 1)
+			SDL_Rect enemyRect = {0,frame*20, 20, 20};
+		else if (obj->getThetaVelDirection() == -1)
+			SDL_Rect enemyRect = {20, frame*20, 20, 20};
+	}
+	else
+	{
+		if (obj->getThetaVelDirection() == 1)
+			SDL_Rect enemyRect = {0,frame*20, 20, 20};
+		else if (obj->getThetaVelDirection() == -1)
+			SDL_Rect enemyRect = {20, frame*20, 20, 20};
+	}
 	//render
 	SDL_RenderCopyEx(ren, tex , &enemyRect, &targetRect, 90 -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
 }
@@ -269,7 +303,7 @@ void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex)
 void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
 {
 	char const* scoreChar = message.c_str();
-	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {0, 0, 0, 255} );
+	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
 	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
 	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
 	

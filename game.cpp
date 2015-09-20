@@ -67,7 +67,7 @@ void Game::run()
 					if (!event.key.repeat)
 					{
 						//we don't want to register most events if the game is paused
-						if (state != Paused)
+						if (state == Running)
 						{
 							//if left is pressed, set the player's thetaDir to -1
 							if ( event.key.keysym.sym == SDLK_a)
@@ -90,11 +90,11 @@ void Game::run()
 								bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() + 10 , 1 ) );
 								player->setShootingRight(1);
 							}
-							//if r is pressed, reset level
-							if ( event.key.keysym.sym == SDLK_r)
-							{
-								restart();
-							}
+						}
+						//if r is pressed, reset level
+						if ( event.key.keysym.sym == SDLK_r)
+						{
+							restart();
 						}
 						//if x is pressed, pause
 						if (event.key.keysym.sym == SDLK_x && state == Running)
@@ -173,7 +173,7 @@ void Game::run()
 				
 				//check collisions with player
 				if ( bullets[i]->collidingWithGameObject( (*player).getR(), (*player).getTheta(), (*player).getCollisionRadius() ) )
-					gameOver();
+					gameOver(1);
 				//remove bullets that are too damn old
 				else if ( bullets[i]->getTimeAlive() > bullets[i]->getLifeTime() )
 						bullets[i]->MarkForDeletion();
@@ -181,10 +181,10 @@ void Game::run()
 				//check collisions with enemies
 				for( int j = 0; j < enemies.size(); j++)
 				{
-					if ( bullets[i]->collidingWithGameObject( enemies[j]->getR(), enemies[j]->getTheta(), enemies[j]->getCollisionRadius() ) )
+					if ( (enemies[j]->isNotExploding()) && bullets[i]->collidingWithGameObject( enemies[j]->getR(), enemies[j]->getTheta(), enemies[j]->getCollisionRadius() ) )
 					{
 						bullets[i]->MarkForDeletion();
-						enemies[j]->MarkForDeletion();
+						enemies[j]->startExploding();
 						player->addKill();
 					}
 				}
@@ -198,8 +198,8 @@ void Game::run()
 				if (enemies[i]->collidingWithPlanet( (*planet).getCollisionRadius() ))
 					enemies[i]->collideWithPlanet( (*planet).getCollisionRadius() );
 				//run player collision checks
-				if ( enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() ) )
-					gameOver();
+				if (  (enemies[i]->isNotExploding()) &&  enemies[i]->collidingWithGameObject( player->getR(), player->getTheta(), player->getCollisionRadius() ) )
+					gameOver(0);
 			}
 			
 			//remove objects which have been marked for deletion
@@ -245,10 +245,12 @@ void Game::restart()
 	lastTime = SDL_GetTicks();
 }
 
-void Game::gameOver()
+void Game::gameOver(bool self)
 {
 	std::cout << player->getNumKills() << std::endl;
-	restart();
+	if (self) state = GameOverSelf;
+	else state = GameOverEnemy;
+	//restart();
 }
 
 Planet* Game::getPlanet() const{return planet;}
@@ -259,3 +261,6 @@ std::vector<gameObject*> Game::getEnemies(){return enemies;}
 unsigned int Game::getFPS() { return fps; }
 void Game::addBullet(){}
 bool Game::isPaused(){ return (state == Paused); }
+bool Game::isGameOverEnemy(){ return (state == GameOverEnemy); }
+bool Game::isGameOverSelf(){ return (state == GameOverSelf); }
+bool Game::isRunning(){ return (state == Running); }

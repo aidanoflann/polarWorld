@@ -6,6 +6,14 @@
 class gameObject
 {
 protected:
+	
+	enum State
+	{
+		Midair,
+		Grounded,
+		Exploding,
+	};
+	State state;
 	//coordinates in polar space
 	double r;
 	double theta;
@@ -24,6 +32,7 @@ protected:
 	std::string enemyType; //sky or ground
 	int animationFrame; //cycle through animations
 	double frameTime;
+	double explodingDuration;
 	
 
 public:
@@ -41,12 +50,14 @@ public:
 	double getThetaVelDirection();
 	virtual bool collidingWithPlanet(double);
 	virtual void collideWithPlanet(double);
+	virtual void startExploding();
 	bool collidingWithGameObject(double, double, double);
 	bool getMarkedForDeletion();
 	void MarkForDeletion();
 	std::string getEnemyType();
 	int getAnimationFrame();
 	void updateAnimationFrame(double, double, int);
+	bool isNotExploding();
 };
 
 #endif
