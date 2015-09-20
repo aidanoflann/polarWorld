@@ -9,6 +9,8 @@ private:
 	double startCDTimer;
 	double spawnCoolDown;
 	double timeNow;
+	double thetaOffset;
+	double thetaOffsetMax;
 	
 public:
 	void init();

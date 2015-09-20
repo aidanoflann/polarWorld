@@ -197,15 +197,23 @@ void renderSystem::renderPlayer(Player* player)
 	int frame = player->getAnimationFrame();
 	SDL_Rect playerRect;
 	if (player->getShootingRight())
+	{
 		if (player->ifGrounded() )
 			SDL_Rect playerRect = {0,frame*20, 20, 20};
 		else if (player->ifMidair())
 			SDL_Rect playerRect = {40,frame*20, 20, 20};
+		if (player->getThetaVelDirection() != 0)
+			SDL_Rect playerRect = {80,frame*20, 20, 20};
+	}
 	else
+	{
 		if (player->ifGrounded())
 			SDL_Rect playerRect = {20,frame*20, 20, 20};
 		else if (player->ifMidair())
 			SDL_Rect playerRect = {60,frame*20, 20, 20};
+		if (player->getThetaVelDirection() != 0)
+			SDL_Rect playerRect = {100,frame*20, 20, 20};
+	}
 	//render
 	SDL_RenderCopy(ren, player_texture, &playerRect, &targetRect);
 }
@@ -225,9 +233,11 @@ void renderSystem::renderCloud(gameObject* cloud, SDL_Texture* tex)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (cloud->getR() ) * cos( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
 							 (int)(cameraY + (cloud->getR() ) * sin( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
-							 (int)(cloud->getCollisionRadius()*2.5), (int)(cloud->getCollisionRadius()*2.5)};
+							 (int)(cloud->getCollisionRadius()*2), (int)(cloud->getCollisionRadius()*2)};
+	int frame = cloud->getAnimationFrame();
+	SDL_Rect cloudRect = {0, frame*25, 25, 25};
 	//render the planet
-	SDL_RenderCopy(ren, tex , NULL, &targetRect);
+	SDL_RenderCopyEx(ren, tex , &cloudRect, &targetRect, 90 - cameraTheta + cloud->getTheta()*1.1, NULL, SDL_FLIP_NONE);
 }
 
 void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex)
