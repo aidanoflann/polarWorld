@@ -19,6 +19,7 @@ private:
 	double rage;
 	int numKills;
 	bool shootingRight;
+	bool runningRight;
 	
 public:
 	//initialise default variables
@@ -34,6 +35,8 @@ public:
 	void addKill();
 	void setShootingRight(bool);
 	bool getShootingRight();
+	void setRunningRight(bool);
+	bool getRunningRight();
 	bool ifMidair();
 	bool ifGrounded();
 	bool ifRunning();

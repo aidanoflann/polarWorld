@@ -9,7 +9,6 @@ int main()
 	//instantiate the game class
 	Game game;
 	//initialise (0 means not resetting)
-	std::cout << "no segfaults yet!" << std::endl;
 	game.init(0);
 	//run (main game loop)
 	game.run();

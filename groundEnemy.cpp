@@ -5,10 +5,10 @@
 #include "groundEnemy.h"
 
 //constructor
-GroundEnemy::GroundEnemy( double rToSet, double thetaToSet, double dir)  : gameObject()
+GroundEnemy::GroundEnemy( double rToSet, double thetaToSet, double dir, double thetaVelToSet)  : gameObject()
 {
-	rVel = 0;
-	thetaVel = 0.05;
+	rVel = 0.5;
+	thetaVel = thetaVelToSet;
 	rVelDirection = +1;
 	collisionRadius = 20;
 	state = Midair;

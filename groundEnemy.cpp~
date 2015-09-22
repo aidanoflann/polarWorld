@@ -5,9 +5,9 @@
 #include "groundEnemy.h"
 
 //constructor
-GroundEnemy::GroundEnemy( double rToSet, double thetaToSet, double dir)  : gameObject()
+GroundEnemy::GroundEnemy( double rToSet, double thetaToSet, double dir, double rVelToSet)  : gameObject()
 {
-	rVel = 0;
+	rVel = rVelToSet;
 	thetaVel = 0.05;
 	rVelDirection = +1;
 	collisionRadius = 20;
@@ -39,8 +39,8 @@ void GroundEnemy::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
-	
-	updateAnimationFrame(d_time, 100, 6);
+	int maxFrames = (state == Exploding)? 6: 3;
+	updateAnimationFrame(d_time, 100, maxFrames);
 }
 
 bool GroundEnemy::collidingWithPlanet(double planetCollisionRadius)

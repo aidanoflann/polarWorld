@@ -12,7 +12,7 @@ class GroundEnemy : public gameObject
 public:
 	void init();
 	//constructor
-	GroundEnemy( double, double, double );
+	GroundEnemy( double, double, double, double );
 	virtual void tick(double) override;
 	bool collidingWithPlanet(double) override;
 	void collideWithPlanet(double) override;

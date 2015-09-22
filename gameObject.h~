@@ -32,6 +32,7 @@ protected:
 	std::string enemyType; //sky or ground
 	int animationFrame; //cycle through animations
 	double frameTime;
+	double explodingDuration;
 	
 
 public:

@@ -41,7 +41,7 @@ void Cloud::tick(double d_time, double playerTheta)
 
 bool Cloud::doSpawn(double d_time, int playerKills)
 {
-	spawnCoolDown = std::max(1000 - playerKills*10, 100 );
+	spawnCoolDown = std::max(1000 - playerKills*10, 200 );
 	timeNow += d_time;
 	bool doSpawn = timeNow > spawnCoolDown;
 	if (doSpawn)

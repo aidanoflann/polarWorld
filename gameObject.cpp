@@ -17,6 +17,7 @@ gameObject::gameObject()
 }
 
 double gameObject::getCollisionRadius() const {return collisionRadius;}
+void gameObject::setCollisionRadius(double collisionRadiusToSet){collisionRadius = collisionRadiusToSet;}
 double gameObject::getR() const {return r;}
 double gameObject::getTheta() const {return theta;}
 void gameObject::setR(double rToSet) {r = rToSet;}

@@ -13,10 +13,11 @@ gameObject::gameObject()
 	markedForDeletion = 0;
 	animationFrame = 0;
 	frameTime = 0;
-	explodingDuration = 400;
+	explodingDuration = 500;
 }
 
 double gameObject::getCollisionRadius() const {return collisionRadius;}
+voide gameObject::setCollisionRadius(double collisionRadiusToSet){collisionRadius = collisionRadiusToSet;}
 double gameObject::getR() const {return r;}
 double gameObject::getTheta() const {return theta;}
 void gameObject::setR(double rToSet) {r = rToSet;}

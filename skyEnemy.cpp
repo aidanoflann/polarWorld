@@ -5,10 +5,10 @@
 #include "skyEnemy.h"
 
 //constructor
-SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir)
+SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir, double thetaVelToSet)
 {
-	rVel = 0;
-	thetaVel = 0.05;
+	rVel = 0.5;
+	thetaVel = thetaVelToSet;
 	rVelDirection = +1;
 	collisionRadius = 20;
 	state = Midair;
@@ -18,6 +18,8 @@ SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir)
 	thetaVelDirection = dir;
 	enemyType = "sky";
 	timeExploding = 0;
+	
+	flyHeight = rand()%10 + 45;
 }
 void SkyEnemy::init()
 {
@@ -44,7 +46,7 @@ void SkyEnemy::tick(double d_time)
 //same as groundenemy, but skyenemies stop falling higher up
 bool SkyEnemy::collidingWithPlanet(double planetCollisionRadius)
 {
-	return ( state == Midair && planetCollisionRadius + 50 + collisionRadius > r );
+	return ( state == Midair && planetCollisionRadius + flyHeight + collisionRadius > r );
 }
 
 void SkyEnemy::collideWithPlanet(double planetCollisionRadius)
@@ -52,5 +54,5 @@ void SkyEnemy::collideWithPlanet(double planetCollisionRadius)
 	state = Grounded;
 	rVel = 0;
 	rVelDirection = 0;
-	r = collisionRadius + planetCollisionRadius + 45;
+	r = collisionRadius + planetCollisionRadius + flyHeight;
 }

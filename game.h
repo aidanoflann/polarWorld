@@ -13,6 +13,7 @@ class Game;
 #include "skyEnemy.h"
 #include "cloud.h"
 
+#include <SDL_mixer.h>
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 
@@ -40,6 +41,7 @@ class Game
 		bool isGameOverEnemy();
 		bool isGameOverSelf();
 		bool isRunning();
+		bool isStartup();
 
 	//attributes
 	private:
@@ -66,8 +68,11 @@ class Game
 			Running,
 			GameOverSelf,
 			GameOverEnemy,
+			Startup,
 		};
 		State state;
+		Mix_Music* mscMusic;
+		Mix_Chunk* sndShoot;
 };
 
 #endif

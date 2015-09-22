@@ -29,12 +29,6 @@ void Player::tick(double d_time)
 		rVel = rVel + g*d_time;
 		r = r + rVelDirection*rVel*d_time;
 	}
-	if (state == Grounded && thetaVelDirection != 0)
-	{
-		state = Running;
-	}
-	else if (state == Grounded && thetaVelDirection == 0)
-		state = Grounded;
 	
 	updateAnimationFrame(d_time, 100, 5);
 }
@@ -66,6 +60,8 @@ int Player::getNumKills(){return numKills;}
 void Player::addKill(){ numKills++; }
 bool Player::getShootingRight() {return shootingRight;}
 void Player::setShootingRight(bool shootingRightToSet) { shootingRight = shootingRightToSet;}
+bool Player::getRunningRight() {return runningRight;}
+void Player::setRunningRight(bool runningRightToSet) { runningRight = runningRightToSet;}
 bool Player::ifMidair() { return (state == Midair); }
 bool Player::ifGrounded() { return (state == Grounded); }
 bool Player::ifRunning() { return (state == Running); }

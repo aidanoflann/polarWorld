@@ -15,6 +15,7 @@ Player::Player() : gameObject()
 	state = Midair;
 	numKills = 0;
 	shootingRight = 1; //1 is right, 0 is left
+	runningRight = 1;
 }
 
 void Player::init()
@@ -60,6 +61,8 @@ int Player::getNumKills(){return numKills;}
 void Player::addKill(){ numKills++; }
 bool Player::getShootingRight() {return shootingRight;}
 void Player::setShootingRight(bool shootingRightToSet) { shootingRight = shootingRightToSet;}
+bool Player::getRunningRight() {return runningRight;}
+void Player::setRunningRight(bool runningRightToSet) { runningRight = runningRightToSet;}
 bool Player::ifMidair() { return (state == Midair); }
 bool Player::ifGrounded() { return (state == Grounded); }
 bool Player::ifRunning() { return (state == Running); }

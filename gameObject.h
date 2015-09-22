@@ -43,6 +43,7 @@ public:
 	double getR() const;
 	double getTheta() const;
 	double getCollisionRadius() const;
+	void setCollisionRadius(double);
 	void setR(double);
 	void setTheta(double);
 	void setRVelDirection(double);
