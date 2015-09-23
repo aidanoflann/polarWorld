@@ -45,7 +45,7 @@ int renderSystem::init()
 	cameraTheta = 0;
 	
 	//first let's initialise SDL2, 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		exit(1);
@@ -217,13 +217,13 @@ void renderSystem::draw( Game& game)
 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
 		//render a couple of enemies
-		gameObject gen = GroundEnemy(270, 220, +1);
+		gameObject gen = GroundEnemy(270, 220, +1, 0);
 		gen.setCollisionRadius( 100 );
 		renderEnemy(&gen, groundEnemy_texture, 50);
 		
 		gameObject sen = SkyEnemy(270, 320, -1, 0);
 		sen.setCollisionRadius( 100 );
-		renderEnemy(&sen, skyEnemy_texture, -50, 0);
+		renderEnemy(&sen, skyEnemy_texture, -50);
 		//render pause text
 		renderText("Prepare to defend your planet.", width/2 - 165, height/2 - 25);
 		renderText("Press R to start.", width/2 - 85, height/2 + 25);

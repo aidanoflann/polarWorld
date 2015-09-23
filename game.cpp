@@ -20,13 +20,16 @@ void Game::init(bool reset)
 	{
 		renderer = new renderSystem();
 		(*renderer).init();
-		Mix_Music* mscMusic = NULL;
-		Mix_Chunk* sndShoot = NULL;
 		
 		//initialise the sound system
-		if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 1024) < 0)//2 channels, for music and sound
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)//2 channels, for music and sound
 			std::cout << "SDL_Mixer Error: " << SDL_GetError() << std::endl;
 	}
+	Mix_Music* mscMusic = NULL;
+	Mix_Chunk* sndShoot = NULL;
+	sndShoot = Mix_LoadWAV("sounds/shoot.wav");
+	if (sndShoot == NULL)
+		std::cout << "Couldn't load shoot.wav: " << Mix_GetError() << std::endl;
 	//initialise the level's planet
 	planet = new Planet();
 	(*planet).init();
@@ -48,10 +51,13 @@ void Game::cleanup(bool reset)
 	enemies.clear();
 	for (int i = 0; i < bullets.size(); i++) { delete bullets[i];}
 	bullets.clear();
+	//Mix_FreeMusic( mscMusic );
+	//Mix_FreeChunk( sndShoot );
 	if (!reset)
 	{
 		(*renderer).cleanup();
 		delete renderer;
+		Mix_Quit();
 	}
 }
 
@@ -99,6 +105,7 @@ void Game::run()
 							{
 								bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() - 10 , -1 ) );
 								player->setShootingRight(0);
+								std::cout << Mix_PlayChannel( -1, sndShoot, 0) << Mix_GetError() << std::endl;
 							}
 							//if right is pressed, shoot right
 							if ( event.key.keysym.sym == SDLK_RIGHT)

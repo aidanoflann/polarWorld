@@ -19,7 +19,7 @@ SkyEnemy::SkyEnemy( double rToSet, double thetaToSet, double dir, double thetaVe
 	enemyType = "sky";
 	timeExploding = 0;
 	
-	flyHeight = rand()%10 + 45;
+	flyHeight = rand()%10 + 40;
 }
 void SkyEnemy::init()
 {

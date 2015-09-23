@@ -45,7 +45,7 @@ int renderSystem::init()
 	cameraTheta = 0;
 	
 	//first let's initialise SDL2, 
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
 	{
 		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		exit(1);

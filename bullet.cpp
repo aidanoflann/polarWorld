@@ -13,7 +13,7 @@ Bullet::Bullet( double rToSet, double thetaToSet, double dir)
 	r = rToSet;
 	theta = thetaToSet;
 	thetaVelDirection = dir;
-	lifeTime = 4000; //ms
+	lifeTime = 40000; //ms
 }
 void Bullet::init()
 {

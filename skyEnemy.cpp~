@@ -54,5 +54,5 @@ void SkyEnemy::collideWithPlanet(double planetCollisionRadius)
 	state = Grounded;
 	rVel = 0;
 	rVelDirection = 0;
-	r = collisionRadius + planetCollisionRadius + 45;
+	r = collisionRadius + planetCollisionRadius + flyHeight;
 }
