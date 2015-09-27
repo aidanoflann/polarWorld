@@ -23,12 +23,14 @@ void Game::init(bool reset)
 	//initialise the rendersystem
 	if (!reset)
 	{
+		//SDL_Init was removed because it doesn't seem to do anything
+		//TODO: Add it back later if necessary?
 		//first let's initialise SDL2, 
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-		{
-			std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-			exit(1);
-		}
+		//if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
+		//{
+		//	std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+		//	exit(1);
+		//}
 		
 		renderer = new renderSystem();
 		(*renderer).init();
@@ -37,6 +39,7 @@ void Game::init(bool reset)
 		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)//2 channels, for music and sound
 			std::cout << "SDL_Mixer Error: " << SDL_GetError() << std::endl;
 	}
+	//TODO: Put sound back in the game (was removed for migrating to emscripten-compilable code)
 // 	sndShoot = Mix_LoadWAV("sounds/shoot.wav");
 // 	if (sndShoot == NULL)
 // 		std::cout << "Couldn't load shoot.wav: " << Mix_GetError() << std::endl;
@@ -183,6 +186,7 @@ void Game::loopIteration()
 		fpsCheckTime += 1000;
 		frames = 0;
 	}
+	std::cout << fps << std::endl;
 	
 	//perform calculations if unpaused
 	if (state == Running)

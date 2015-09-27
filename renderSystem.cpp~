@@ -4,8 +4,8 @@
 
 #include <SDL.h>
 #include <math.h>
-#include <SDL2_gfxPrimitives.h>
-#include <SDL_ttf.h>
+//#include <SDL2_gfxPrimitives.h>
+//#include <SDL_ttf.h>
 #include <SDL_image.h>
 
 #include <typeinfo>
@@ -45,7 +45,7 @@ void renderSystem::init()
 	cameraTheta = 0;
 	
 	//set up window
-	SDL_Window *win = SDL_CreateWindow("Polar World", 100, 100, (*this).width, (*this).height, SDL_WINDOW_SHOWN);
+	SDL_Window *win = SDL_CreateWindow("Polar World", 100, 100, width, height, SDL_WINDOW_SHOWN);
 	//if the window creation fails, *win will be NULL
 	if (win == nullptr)
 	{
@@ -105,6 +105,7 @@ void renderSystem::init()
 	SDL_Surface* background_png = IMG_Load("images/background.png");
 	background_texture = SDL_CreateTextureFromSurface(ren, background_png);
 	delete background_png;
+	
 	SDL_Surface* backgroundSky_png = IMG_Load("images/backgroundSky.png");
 	backgroundSky_texture = SDL_CreateTextureFromSurface(ren, backgroundSky_png);
 	delete backgroundSky_png;
@@ -182,13 +183,13 @@ void renderSystem::draw( Game& game)
 // 						1000,
 // 						0, 0, 0, 100);
 // 			//render pause text
-		renderText("Paused", width/2 - 30, height/2 - 10 );
+// 		renderText("Paused", width/2 - 30, height/2 - 10 );
 	}
 	
 	if ( game.isGameOverEnemy() )
 	{
-		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
-		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
 		//render pause text
 		renderText("The planet belongs to the aliens now.", width/2 - 195, height/2 - 25);
 		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
@@ -197,8 +198,8 @@ void renderSystem::draw( Game& game)
 	
 	if ( game.isGameOverSelf() )
 	{
-		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
-		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
 		//render pause text
 		renderText("You were the monster all along.", width/2 - 170, height/2 - 25);
 		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
@@ -207,17 +208,19 @@ void renderSystem::draw( Game& game)
 	
 	if ( game.isStartup() )
 	{
-		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
-		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
+// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
+// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
+
 		//render a couple of enemies
 		gameObject gen = GroundEnemy(270, 220, +1, 0);
 		gen.setCollisionRadius( 100 );
 		renderEnemy(&gen, groundEnemy_texture, 50);
-		
+
 		gameObject sen = SkyEnemy(270, 320, -1, 0);
 		sen.setCollisionRadius( 100 );
 		renderEnemy(&sen, skyEnemy_texture, -50);
 		//render pause text
+		
 		renderText("Prepare to defend your planet.", width/2 - 165, height/2 - 25);
 		renderText("Press R to start.", width/2 - 85, height/2 + 25);
 		
@@ -231,12 +234,11 @@ void renderSystem::draw( Game& game)
 		renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
 		
 		//render the fps text
+		std::cout << std::to_string(game.getFPS()) << std::endl;
 		//renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 	}
-	
 	//Update the screen
 	SDL_RenderPresent(ren);
-	
 }
 
 void renderSystem::cleanup()
@@ -252,7 +254,7 @@ void renderSystem::renderPlayer(Player* player)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 40,40};
+							 20,20};
 	//depending on the direction player is facing, point the texture right or left
 	int frame = player->getAnimationFrame();
 	SDL_Rect playerRect;
@@ -312,7 +314,7 @@ void renderSystem::renderCloud(gameObject* cloud, SDL_Texture* tex)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (cloud->getR() ) * cos( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
 							 (int)(cameraY + (cloud->getR() ) * sin( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
-							 (int)(cloud->getCollisionRadius()*2), (int)(cloud->getCollisionRadius()*2)};
+							 50, 50};
 	int frame = cloud->getAnimationFrame();
 	SDL_Rect cloudRect = {0, frame*25, 25, 25};
 	//render the planet
@@ -347,24 +349,27 @@ void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex, double rotAngl
 
 void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
 {
-	char const* scoreChar = message.c_str();
-	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
-	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
-	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
-	
-	//cleanup
-	//delete scoreChar;
-	SDL_FreeSurface( scoreText );
+// 	char const* scoreChar = message.c_str();
+// 	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
+// 	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
+// 	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
+// 	
+// 	//cleanup
+// 	//delete scoreChar;
+// 	SDL_FreeSurface( scoreText );
 }
 
 void renderSystem::renderBackground()
 {
 		//determine the target rectangle to render into
+	SDL_SetRenderDrawColor(ren, 200, 0, 0, 255);
 	SDL_Rect targetRect = { -100, -200, 1000, 1000};
 	SDL_Rect backgroundRect = {0, 40, 250, 170};
 	//render the blue background
 	SDL_RenderCopy(ren, backgroundSky_texture, NULL, NULL);
 	//rotate and render the clouds
+	#ifndef EMSCRIPTEN
 	SDL_RenderCopyEx(ren, background_texture , NULL, NULL, -cameraTheta*0.7, NULL, SDL_FLIP_NONE);
+	#endif
 	//SDL_RenderCopy(ren, tex , NULL, &screenRect);
 }

@@ -1,5 +1,5 @@
 //g++ *.cpp -o ex -std=c++0x -lSDL2 -lSDL2_gfx -lSDL2_ttf -lSDL2_image -lSDL2_mixer
-//em++ *.cpp -o web/ex.html
+//em++ *.cpp -o web/ex.html -std=c++0x -lSDL2 -lSDL2_gfx -lSDL2_ttf -lSDL2_image -lSDL2_mixer
 //sudo ldconfig
 
 #include <iostream>
@@ -17,7 +17,7 @@ void loop( Game* game )
 void run(Game* game)
 {
 	#ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg((em_arg_callback_func)loop, game, 0, 1);
+	emscripten_set_main_loop_arg((em_arg_callback_func)loop, game, 60, 1);
 	#else
 	while( !game->isQuitState() )
 	{
