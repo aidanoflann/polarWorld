@@ -28,7 +28,7 @@ void Cloud::tick(double d_time, double playerTheta)
 {
 	//oscillate around playerTheta + 180.
 	thetaOffset += thetaVelDirection*thetaVel*d_time;
-	if ( abs(thetaOffset) > abs(thetaOffsetMax) )
+	if ( std::abs(thetaOffset) > std::abs(thetaOffsetMax) )
 	{
 		thetaOffset = thetaOffsetMax;
 		thetaOffsetMax *= - 1;

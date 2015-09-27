@@ -42,6 +42,7 @@ class Game
 		bool isGameOverSelf();
 		bool isRunning();
 		bool isStartup();
+		void loopIteration();
 
 	//attributes
 	private:
@@ -72,7 +73,7 @@ class Game
 		};
 		State state;
 		Mix_Music* mscMusic;
-		Mix_Music* sndShoot;
+		Mix_Chunk* sndShoot;
 };
 
 #endif

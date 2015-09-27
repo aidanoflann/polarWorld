@@ -42,6 +42,8 @@ class Game
 		bool isGameOverSelf();
 		bool isRunning();
 		bool isStartup();
+		void loopIteration();
+		bool isQuitState();
 
 	//attributes
 	private:

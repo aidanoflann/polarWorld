@@ -46,7 +46,7 @@ private:
 	double cameraTheta;
 	
 public:
-	int init();
+	void init();
 	void draw(Game&);
 	void cleanup();
 };

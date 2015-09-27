@@ -26,6 +26,7 @@ private:
 	SDL_Texture* skyEnemy_texture;
 	SDL_Texture* background_texture;
 	SDL_Texture* backgroundSky_texture;
+	SDL_Texture* controls_texture;
 	TTF_Font *font;
 	//window width and height
 	double width;

@@ -22,7 +22,7 @@ using std::cout; using std::endl;
 
 double radPerDeg = 0.01745329251;
 
-int renderSystem::init()
+void renderSystem::init()
 {
 	//first just give some information on the SDL version
 	//SDL_version compiled;
@@ -43,13 +43,6 @@ int renderSystem::init()
 	cameraY = height/2;
 	cameraZoom = 1;
 	cameraTheta = 0;
-	
-	//first let's initialise SDL2, 
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
-		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		exit(1);
-	}
 	
 	//set up window
 	SDL_Window *win = SDL_CreateWindow("Polar World", 100, 100, (*this).width, (*this).height, SDL_WINDOW_SHOWN);
@@ -173,22 +166,22 @@ void renderSystem::draw( Game& game)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
 		Bullet b = *((game.getBullets())[i]);
-		filledCircleRGBA(ren,
-						cameraX + b.getR() * cos( (-cameraTheta + b.getTheta()) * radPerDeg),
-						cameraY + b.getR() * sin( (-cameraTheta + b.getTheta()) * radPerDeg),
-						b.getCollisionRadius(),
-						250, 100, 100, 255);
+// 		filledCircleRGBA(ren,
+// 						cameraX + b.getR() * cos( (-cameraTheta + b.getTheta()) * radPerDeg),
+// 						cameraY + b.getR() * sin( (-cameraTheta + b.getTheta()) * radPerDeg),
+// 						b.getCollisionRadius(),
+// 						250, 100, 100, 255);
 	}
 
 	//if the game is paused, overlay a semitransparent black rect
 	if ( game.isPaused() )
 	{
-		filledCircleRGBA(ren,
-						0,
-						0,
-						1000,
-						0, 0, 0, 100);
-			//render pause text
+// 		filledCircleRGBA(ren,
+// 						0,
+// 						0,
+// 						1000,
+// 						0, 0, 0, 100);
+// 			//render pause text
 		renderText("Paused", width/2 - 30, height/2 - 10 );
 	}
 	

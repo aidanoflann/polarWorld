@@ -22,7 +22,7 @@ using std::cout; using std::endl;
 
 double radPerDeg = 0.01745329251;
 
-int renderSystem::init()
+void renderSystem::init()
 {
 	//first just give some information on the SDL version
 	//SDL_version compiled;
@@ -43,13 +43,6 @@ int renderSystem::init()
 	cameraY = height/2;
 	cameraZoom = 1;
 	cameraTheta = 0;
-	
-	//first let's initialise SDL2, 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-	{
-		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-		exit(1);
-	}
 	
 	//set up window
 	SDL_Window *win = SDL_CreateWindow("Polar World", 100, 100, (*this).width, (*this).height, SDL_WINDOW_SHOWN);
