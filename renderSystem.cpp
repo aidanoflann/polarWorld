@@ -167,29 +167,23 @@ void renderSystem::draw( Game& game)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
 		Bullet b = *((game.getBullets())[i]);
-// 		filledCircleRGBA(ren,
-// 						cameraX + b.getR() * cos( (-cameraTheta + b.getTheta()) * radPerDeg),
-// 						cameraY + b.getR() * sin( (-cameraTheta + b.getTheta()) * radPerDeg),
-// 						b.getCollisionRadius(),
-// 						250, 100, 100, 255);
+		filledCircleRGBA(ren,
+						cameraX + b.getR() * cos( (-cameraTheta + b.getTheta()) * radPerDeg),
+						cameraY + b.getR() * sin( (-cameraTheta + b.getTheta()) * radPerDeg),
+						b.getCollisionRadius(),
+						250, 100, 100, 255);
 	}
 
 	//if the game is paused, overlay a semitransparent black rect
 	if ( game.isPaused() )
 	{
-// 		filledCircleRGBA(ren,
-// 						0,
-// 						0,
-// 						1000,
-// 						0, 0, 0, 100);
-// 			//render pause text
-// 		renderText("Paused", width/2 - 30, height/2 - 10 );
+		boxRGBA(ren, 0, 0, width, height, 0,0,0, 200);
 	}
 	
 	if ( game.isGameOverEnemy() )
 	{
-// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
-// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
 		//render pause text
 		renderText("The planet belongs to the aliens now.", width/2 - 195, height/2 - 25);
 		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
@@ -198,8 +192,8 @@ void renderSystem::draw( Game& game)
 	
 	if ( game.isGameOverSelf() )
 	{
-// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
-// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
+		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
 		//render pause text
 		renderText("You were the monster all along.", width/2 - 170, height/2 - 25);
 		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
@@ -208,8 +202,8 @@ void renderSystem::draw( Game& game)
 	
 	if ( game.isStartup() )
 	{
-// 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
-// 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
+		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
 
 		//render a couple of enemies
 		gameObject gen = GroundEnemy(270, 220, +1, 0);
@@ -254,7 +248,7 @@ void renderSystem::renderPlayer(Player* player)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 20,20};
+							 40,40};
 	//depending on the direction player is facing, point the texture right or left
 	int frame = player->getAnimationFrame();
 	SDL_Rect playerRect;
@@ -349,14 +343,14 @@ void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex, double rotAngl
 
 void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
 {
-// 	char const* scoreChar = message.c_str();
-// 	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
-// 	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
-// 	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
-// 	
-// 	//cleanup
-// 	//delete scoreChar;
-// 	SDL_FreeSurface( scoreText );
+	char const* scoreChar = message.c_str();
+	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
+	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
+	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
+	
+	//cleanup
+	//delete scoreChar;
+	SDL_FreeSurface( scoreText );
 }
 
 void renderSystem::renderBackground()
