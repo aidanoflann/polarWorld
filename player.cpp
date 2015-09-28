@@ -16,6 +16,8 @@ Player::Player() : gameObject()
 	numKills = 0;
 	shootingRight = 1; //1 is right, 0 is left
 	runningRight = 1;
+	justShot = false;
+	timeSinceShot = 0;
 }
 
 void Player::init()
@@ -32,6 +34,17 @@ void Player::tick(double d_time)
 	}
 	
 	updateAnimationFrame(d_time, 100, 5);
+	
+	if (justShot)
+	{
+		if ( timeSinceShot > 300 )
+		{
+			timeSinceShot = 0;
+			justShot = false;
+		}
+		else
+			timeSinceShot += d_time;
+	}
 }
 
 bool Player::collidingWithPlanet(double planetCollisionRadius)
@@ -66,3 +79,10 @@ void Player::setRunningRight(bool runningRightToSet) { runningRight = runningRig
 bool Player::ifMidair() { return (state == Midair); }
 bool Player::ifGrounded() { return (state == Grounded); }
 bool Player::ifRunning() { return (state == Running); }
+bool Player::ifJustShot() { return justShot; }
+void Player::shoot(int dir)
+{
+	shootingRight = (dir == +1)? true: false;
+	justShot = true;
+	timeSinceShot = 0;
+}

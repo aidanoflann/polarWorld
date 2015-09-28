@@ -16,15 +16,11 @@ void loop( Game* game )
 
 void run(Game* game)
 {
-	#ifdef EMSCRIPTEN
-	emscripten_set_main_loop_arg((em_arg_callback_func)loop, game, 0, 1);
-	#else
 	while( !game->isQuitState() )
 	{
 		loop(game);
 	}
 	game->cleanup(0);
-	#endif
 }
 
 int main()

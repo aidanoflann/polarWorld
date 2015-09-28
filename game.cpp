@@ -38,11 +38,31 @@ void Game::init(bool reset)
 		//initialise the sound system
 		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0)//2 channels, for music and sound
 			std::cout << "SDL_Mixer Error: " << SDL_GetError() << std::endl;
+		
+		//load the default play music
+		mscMusic = Mix_LoadMUS("sounds/play.wav");
+		if (mscMusic == NULL)
+			std::cout << "Couldn't load play.wav: " << Mix_GetError() << std::endl;
+		
+		//load the death music
+		mscMusicDead = Mix_LoadMUS("sounds/dead.wav");
+		if (mscMusicDead == NULL)
+			std::cout << "Couldn't load dead.wav: " << Mix_GetError() << std::endl;
+		
+		//since we're in the Startup state, play the music
+		if (!Mix_PlayingMusic())
+			Mix_PlayMusic(mscMusic, -1);
+		
+		//load the shoot sound
+		sndShoot = Mix_LoadWAV("sounds/shoot.wav");
+		if (sndShoot == NULL)
+			std::cout << "Couldn't load shoot.wav: " << Mix_GetError() << std::endl;
+		
+		//load the shoot sound
+		sndEnemyDie = Mix_LoadWAV("sounds/enemyDie.wav");
+		if (sndShoot == NULL)
+			std::cout << "Couldn't load enemyDie.wav: " << Mix_GetError() << std::endl;
 	}
-	//TODO: Put sound back in the game (was removed for migrating to emscripten-compilable code)
-// 	sndShoot = Mix_LoadWAV("sounds/shoot.wav");
-// 	if (sndShoot == NULL)
-// 		std::cout << "Couldn't load shoot.wav: " << Mix_GetError() << std::endl;
 	//initialise the level's planet
 	planet = new Planet();
 	(*planet).init();
@@ -50,8 +70,14 @@ void Game::init(bool reset)
 	player = new Player();
 	//initialise the level's cloud
 	cloud = new Cloud(250, player->getTheta() + 180);
+	//array of enemies (empty at start)
 	std::vector<gameObject> enemies;
+	//array of bullets (empty at start)
 	std::vector<Bullet> bullets;
+	//if the music is on deahtmusic, switch it back
+	if( state == GameOverEnemy || state == GameOverSelf)
+		Mix_PlayMusic(mscMusic, -1);
+	//default state is Startup (currently shows controls)
 	state = Startup;
 }
 
@@ -64,10 +90,11 @@ void Game::cleanup(bool reset)
 	enemies.clear();
 	for (int i = 0; i < bullets.size(); i++) { delete bullets[i];}
 	bullets.clear();
-	//Mix_FreeMusic( mscMusic );
-	//Mix_FreeChunk( sndShoot );
 	if (!reset)
 	{
+		Mix_FreeChunk( sndShoot );
+		Mix_FreeMusic( mscMusic );
+		Mix_FreeMusic( mscMusicDead );
 		(*renderer).cleanup();
 		delete renderer;
 		Mix_Quit();
@@ -97,14 +124,14 @@ void Game::loopIteration()
 						//if left is pressed, set the player's thetaDir to -1
 						if ( event.key.keysym.sym == SDLK_a)
 						{
-							(*player).setThetaVelDirection( player->getThetaVelDirection() - 1 );
+							(*player).setThetaVelDirection( std::min(player->getThetaVelDirection() - 1, -1.d) );
 							player->setRunningRight(0);
 							player->setShootingRight(0);
 						}
 						//if right is pressed, set the player's thetaDir to 1
 						if ( event.key.keysym.sym == SDLK_d)
 						{
-							(*player).setThetaVelDirection( player->getThetaVelDirection() + 1 );
+							(*player).setThetaVelDirection( std::max(player->getThetaVelDirection() + 1, +1.d) );
 							player->setRunningRight(1);
 							player->setShootingRight(1);
 						}
@@ -115,15 +142,15 @@ void Game::loopIteration()
 						if ( event.key.keysym.sym == SDLK_LEFT)
 						{
 							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() - 10 , -1 ) );
-							player->setShootingRight(0);
-// 							Mix_PlayChannel( -1, sndShoot, 0);
+							player->shoot(-1);
+							Mix_PlayChannel( -1, sndShoot, 0);
 						}
 						//if right is pressed, shoot right
 						if ( event.key.keysym.sym == SDLK_RIGHT)
 						{
 							bullets.push_back( new Bullet( (*player).getR() - 5 , (*player).getTheta() + 10 , 1 ) );
-							player->setShootingRight(1);
-// 							Mix_PlayChannel( -1, sndShoot, 0);
+							player->shoot(+1);
+							Mix_PlayChannel( -1, sndShoot, 0);
 						}
 					}
 					//if r is pressed, reset level
@@ -186,7 +213,6 @@ void Game::loopIteration()
 		fpsCheckTime += 1000;
 		frames = 0;
 	}
-	std::cout << fps << std::endl;
 	
 	//perform calculations if unpaused
 	if (state == Running)
@@ -235,6 +261,7 @@ void Game::loopIteration()
 				{
 					bullets[i]->MarkForDeletion();
 					enemies[j]->startExploding();
+					Mix_PlayChannel(-1, sndEnemyDie, 0);
 					player->addKill();
 				}
 			}
@@ -294,6 +321,8 @@ void Game::restart()
 
 void Game::gameOver(bool self)
 {
+	//play the sad music...
+	Mix_PlayMusic(mscMusicDead, 1);
 	if (self) state = GameOverSelf;
 	else state = GameOverEnemy;
 	//restart();

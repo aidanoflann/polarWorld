@@ -228,8 +228,7 @@ void renderSystem::draw( Game& game)
 		renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
 		
 		//render the fps text
-		std::cout << std::to_string(game.getFPS()) << std::endl;
-		//renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
+		renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 	}
 	//Update the screen
 	SDL_RenderPresent(ren);
@@ -248,7 +247,7 @@ void renderSystem::renderPlayer(Player* player)
 	//determine the target rectangle to render into
 	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
-							 20,20};
+							 40,40};
 	//depending on the direction player is facing, point the texture right or left
 	int frame = player->getAnimationFrame();
 	SDL_Rect playerRect;
@@ -276,21 +275,37 @@ void renderSystem::renderPlayer(Player* player)
 void renderSystem::renderGun(Player* player)
 {
 	//determine the target rectangle to render into
-	SDL_Rect targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+	SDL_Rect targetRect;
+	if (player->ifJustShot() && player->getShootingRight())
+	{
+		targetRect = { (int)(cameraX - 2 + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+						(int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+						40,40};
+	}
+	else if (player->ifJustShot() && !player->getShootingRight())
+	{
+		targetRect = { (int)(cameraX + 2 + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+						(int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
+						40,40};
+	}
+	else
+		targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 40,40};
+							 
 	int frame = player->getAnimationFrame();
 	//render gun on top
 	SDL_Rect gunsRect;
 	if (player->getShootingRight())
 	{
-		SDL_Rect gunsRect = {0, frame*20, 20, 20};
+		SDL_Rect gunsRect = {0 , frame*20, 20, 20};
 	}
 	else
 	{
 		SDL_Rect gunsRect = {20, frame*20, 20, 20};
 	}
 	SDL_RenderCopy(ren, guns_texture, &gunsRect, &targetRect);
+
 }
 
 void renderSystem::renderPlanet(gameObject* obj, SDL_Texture* tex)

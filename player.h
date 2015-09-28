@@ -20,6 +20,8 @@ private:
 	int numKills;
 	bool shootingRight;
 	bool runningRight;
+	bool justShot;
+	double timeSinceShot;
 	
 public:
 	//initialise default variables
@@ -40,6 +42,8 @@ public:
 	bool ifMidair();
 	bool ifGrounded();
 	bool ifRunning();
+	bool ifJustShot();
+	void shoot(int);
 };
 
 #endif

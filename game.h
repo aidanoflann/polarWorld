@@ -74,7 +74,9 @@ class Game
 		};
 		State state;
 		Mix_Music* mscMusic;
+		Mix_Music* mscMusicDead;
 		Mix_Chunk* sndShoot;
+		Mix_Chunk* sndEnemyDie;
 };
 
 #endif
