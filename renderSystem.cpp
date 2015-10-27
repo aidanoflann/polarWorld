@@ -5,11 +5,12 @@
 #include <SDL.h>
 #include <math.h>
 //#include <SDL2_gfxPrimitives.h>
-//#include <SDL_ttf.h>
+#include <SDL_ttf.h>
 #include <SDL_image.h>
 
 #include <typeinfo>
 
+#include "SDL2_gfxPrimitives.h"
 #include "renderSystem.h"
 #include "gameObject.h"
 #include "planet.h"
@@ -30,12 +31,12 @@ void renderSystem::init()
 
 	//SDL_VERSION(&compiled);
 	//SDL_GetVersion(&linked);
-	
+
 	//printf("We compiled against SDL version %d.%d.%d ...\n",
     //   compiled.major, compiled.minor, compiled.patch);
 	//printf("But we are linking against SDL version %d.%d.%d.\n",
     //   linked.major, linked.minor, linked.patch);
-	
+
 	//set width and height
 	width = 800;
 	height = 600;
@@ -43,9 +44,9 @@ void renderSystem::init()
 	cameraY = height/2;
 	cameraZoom = 1;
 	cameraTheta = 0;
-	
+
 	//set up window
-	SDL_Window *win = SDL_CreateWindow("Polar World", 100, 100, width, height, SDL_WINDOW_SHOWN);
+	win = SDL_CreateWindow("Polar World", 800, 100, width, height, SDL_WINDOW_SHOWN);
 	//if the window creation fails, *win will be NULL
 	if (win == nullptr)
 	{
@@ -53,9 +54,9 @@ void renderSystem::init()
 		SDL_Quit();
 		exit(1);
 	}
-	
+
 	//set up a renderer
-	SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_SOFTWARE || SDL_RENDERER_PRESENTVSYNC);
+	ren = SDL_CreateRenderer(win, -1, 0);
 	if (ren == nullptr)
 	{
 		SDL_DestroyWindow(win);
@@ -63,7 +64,7 @@ void renderSystem::init()
 		SDL_Quit();
 		exit(1);
 	}
-	
+
 	// Initialize SDL_ttf library
 	if (TTF_Init() != 0)
 	{
@@ -71,7 +72,7 @@ void renderSystem::init()
 		SDL_Quit();
 		exit(1);
 	}
-	
+
 	// Load a font
 	font = TTF_OpenFont("FreeSans.ttf", 24);
 	if (font == NULL)
@@ -81,72 +82,125 @@ void renderSystem::init()
 		SDL_Quit();
 		exit(1);
 	}
-	
-	(*this).ren = ren;
-	(*this).win = win;
-	
+
 	//load all textures
 	//player
 	SDL_Surface* player_png = IMG_Load("images/player.png");
+	if(player_png == NULL)
+		std::cout << "didn't load player.png: " << SDL_GetError() << std::endl;
 	player_texture = SDL_CreateTextureFromSurface( ren, player_png);
-	delete player_png;
-	
+	if(player_texture == NULL)
+		std::cout << "didn't convert player.png to texture: " << SDL_GetError() << std::endl;
+	//delete player_png;
+
 	//player
 	SDL_Surface* guns_png = IMG_Load("images/guns.png");
+	if(guns_png == NULL)
+		std::cout << "didn't load guns.png: " << SDL_GetError() << std::endl;
 	guns_texture = SDL_CreateTextureFromSurface( ren, guns_png);
-	delete guns_png;
-	
+	//delete guns_png;
+
 	//planet
 	SDL_Surface* planet_png = IMG_Load("images/planet.png");
+	if(planet_png == NULL)
+		std::cout << "didn't load planet.png: " << SDL_GetError() << std::endl;
 	planet_texture = SDL_CreateTextureFromSurface( ren, planet_png );
-	delete planet_png;
-	
+	//delete planet_png;
+
 	//background
 	SDL_Surface* background_png = IMG_Load("images/background.png");
+	if(background_png == NULL)
+		std::cout << "didn't load background.png: " << SDL_GetError() << std::endl;
 	background_texture = SDL_CreateTextureFromSurface(ren, background_png);
-	delete background_png;
-	
+	//delete background_png;
+
 	SDL_Surface* backgroundSky_png = IMG_Load("images/backgroundSky.png");
+	if(backgroundSky_png == NULL)
+		std::cout << "didn't load backgroundSky.png: " << SDL_GetError() << std::endl;
 	backgroundSky_texture = SDL_CreateTextureFromSurface(ren, backgroundSky_png);
-	delete backgroundSky_png;
-	
+	//delete backgroundSky_png;
+
 	//cloud
 	SDL_Surface* cloud_png = IMG_Load("images/cloud.png");
+	if(cloud_png == NULL)
+		std::cout << "didn't load cloud.png: " << SDL_GetError() << std::endl;
 	cloud_texture = SDL_CreateTextureFromSurface(ren, cloud_png);
-	delete cloud_png;
-	
+	//delete cloud_png;
+
 	//groundEnemy
 	SDL_Surface* groundEnemy_png = IMG_Load("images/groundEnemy.png");
+	if(groundEnemy_png == NULL)
+		std::cout << "didn't load player.png: " << SDL_GetError() << std::endl;
 	groundEnemy_texture = SDL_CreateTextureFromSurface(ren, groundEnemy_png);
-	delete groundEnemy_png;
-	
+	//delete groundEnemy_png;
+
 	//skyEnemy
 	SDL_Surface* skyEnemy_png = IMG_Load("images/skyEnemy.png");
+	if(skyEnemy_png == NULL)
+		std::cout << "didn't load skyEnemy.png: " << SDL_GetError() << std::endl;
 	skyEnemy_texture = SDL_CreateTextureFromSurface(ren, skyEnemy_png);
-	delete skyEnemy_png;
-	
+	//delete skyEnemy_png;
+
 	//controls
 	SDL_Surface* controls_png = IMG_Load("images/controls.png");
+	if(controls_png == NULL)
+		std::cout << "didn't load controls.png: " << SDL_GetError() << std::endl;
 	controls_texture = SDL_CreateTextureFromSurface(ren, controls_png);
-	delete controls_png;
+	//delete controls_png;
+	
+	//bullet
+	SDL_Surface* bullet_png = IMG_Load("images/bullet.png");
+	if(controls_png == NULL)
+		std::cout << "didn't load bullet.png: " << SDL_GetError() << std::endl;
+	bullet_texture = SDL_CreateTextureFromSurface(ren, bullet_png);
+	
+	//all messages
+	//startup text
+	messageSurface = TTF_RenderText_Blended( font, "Prepare to defend your planet.",  {255,255,255} );
+	messageTextureStartUp1 = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//start key
+	messageSurface = TTF_RenderText_Blended( font, "Press R to start.",  {255,255,255} );
+	messageTextureStartUp2 = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//paused
+	messageSurface = TTF_RenderText_Blended( font, "Paused",  {255,255,255} );
+	messageTexturePaused = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//text on self-defeat
+	messageSurface = TTF_RenderText_Blended( font, "You were the enemy all along.",  {255,255,255} );
+	messageTextureGameOverSelf = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//text on alien touch
+	messageSurface = TTF_RenderText_Blended( font, "The planet belongs to the aliens now.",  {255,255,255} );
+	messageTextureGameOverEnemy = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//score:
+	messageSurface = TTF_RenderText_Blended( font, "Score:",  {255,255,255} );
+	messageTextureScore = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//restart key
+	messageSurface = TTF_RenderText_Blended( font, "Press R to restart.",  {255,255,255} );
+	messageTexturePressR = SDL_CreateTextureFromSurface(ren, messageSurface);
+	//preloaded texture of all digits
+	messageSurface = TTF_RenderText_Blended( font, "0123456789",  {255,255,255} );
+	messageTextureNumbers = SDL_CreateTextureFromSurface(ren, messageSurface);
+	SDL_FreeSurface(messageSurface);
+	
+	//the static enemies for the startup screen
+	gen = GroundEnemy(270, 220, +1, 0);
+	gen.setCollisionRadius( 100 );
+	sen = SkyEnemy(270, 320, -1, 0);
+	sen.setCollisionRadius( 100 );
+	
 }
 
 void renderSystem::draw( Game& game)
 {
-	//update camera attributes
+	// update camera attributes
 	cameraTheta = game.getPlayer()->getTheta() + 90;
-	
-	//First clear the renderer
+	// First clear the renderer
 	SDL_RenderClear(ren);
-	
-	//draw the background
+	// draw the background
 	renderBackground();
-	
-	//render the player
+	// render the player
 	renderPlayer(game.getPlayer());
 	renderGun(game.getPlayer());
-	
-	//render each enemy
+	// render each enemy
 	for (int i = 0; i != (game.getEnemies()).size(); i++)
 	{
 		gameObject en = *((game.getEnemies())[i]);
@@ -155,78 +209,75 @@ void renderSystem::draw( Game& game)
 		else if (en.getEnemyType() == "sky")
 			renderEnemy(&en, skyEnemy_texture,0);
 	}
-	
-	//render the cloud
+	// render the cloud
 	renderCloud(game.getCloud(), cloud_texture);
-	
-	//render the Planet
+	// render the Planet
 	renderPlanet(game.getPlanet(), planet_texture);
-	
 	//render each bullet
-	//for ( std::vector<Bullet>::iterator iter = (game.getBullets()).begin(); iter != (game.getBullets()).end(); iter++)
 	for (int i = 0; i != (game.getBullets()).size(); i++)
 	{
-		Bullet b = *((game.getBullets())[i]);
-		filledCircleRGBA(ren,
-						cameraX + b.getR() * cos( (-cameraTheta + b.getTheta()) * radPerDeg),
-						cameraY + b.getR() * sin( (-cameraTheta + b.getTheta()) * radPerDeg),
-						b.getCollisionRadius(),
-						250, 100, 100, 255);
+		//Bullet b = *((game.getBullets())[i]);
+		// filledCircleRGBA(ren,
+						// cameraX + ((game.getBullets())[i])->getR() * cos( (-cameraTheta + ((game.getBullets())[i])->getTheta()) * radPerDeg),
+						// cameraY + ((game.getBullets())[i])->getR() * sin( (-cameraTheta + ((game.getBullets())[i])->getTheta()) * radPerDeg),
+						// 5,
+						// 250, 100, 100, 255);
+		renderBullet( (game.getBullets())[i], bullet_texture );
 	}
-
 	//if the game is paused, overlay a semitransparent black rect
 	if ( game.isPaused() )
 	{
 		boxRGBA(ren, 0, 0, width, height, 0,0,0, 200);
+		//render pause text
+		renderText(messageTexturePaused, width/2, height/2- 25);
+		renderText(messageTextureScore, width/2 - 20, height/2 + 25);
+		renderScore(game.getPlayer()->getNumKills(),width/2 + 40, height/2 + 25);
 	}
-	
-	if ( game.isGameOverEnemy() )
+
+	else if ( game.isGameOverEnemy() )
 	{
 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
 		//render pause text
-		renderText("The planet belongs to the aliens now.", width/2 - 195, height/2 - 25);
-		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
-		renderText("Press R to restart.", width/2 - 100, height/2 + 25);
+		renderText(messageTextureGameOverEnemy, width/2, height/2 - 30);
+		renderText(messageTexturePressR, width/2, height/2);
+		renderText(messageTextureScore, width/2 - 30, height/2 + 30);
+		renderScore(game.getPlayer()->getNumKills(),width/2 + 30, height/2 + 30);
 	}
-	
-	if ( game.isGameOverSelf() )
+
+	else if ( game.isGameOverSelf() )
 	{
 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 200);
 		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 200);
-		//render pause text
-		renderText("You were the monster all along.", width/2 - 170, height/2 - 25);
-		renderText("Score: "  + std::to_string(game.getPlayer()->getNumKills()), width/2 - 50, height/2 );
-		renderText("Press R to restart.", width/2 - 100, height/2 + 25);
+		//render gameover text
+		renderText(messageTextureGameOverSelf, width/2, height/2 - 30);
+		renderText(messageTexturePressR, width/2, height/2);
+		renderText(messageTextureScore, width/2 - 30, height/2 + 30);
+		renderScore(game.getPlayer()->getNumKills(),width/2 + 30, height/2 + 30);
 	}
-	
-	if ( game.isStartup() )
+	else if ( game.isStartup() )
 	{
 		boxRGBA(ren, 0, 0, width, height/2 - game.getPlayer()->getR() - 40, 0,0,0, 240);
-		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 40, width, height, 0,0,0, 240);
+		boxRGBA(ren, 0, height/2 - game.getPlayer()->getR() + 100, width, height, 0,0,0, 240);
 
-		//render a couple of enemies
-		gameObject gen = GroundEnemy(270, 220, +1, 0);
-		gen.setCollisionRadius( 100 );
+		//render a couple of 
+		//TODO: don't initialise these each time
+
 		renderEnemy(&gen, groundEnemy_texture, 50);
-
-		gameObject sen = SkyEnemy(270, 320, -1, 0);
-		sen.setCollisionRadius( 100 );
 		renderEnemy(&sen, skyEnemy_texture, -50);
-		//render pause text
 		
-		renderText("Prepare to defend your planet.", width/2 - 165, height/2 - 25);
-		renderText("Press R to start.", width/2 - 85, height/2 + 25);
-		
-		SDL_Rect targetRect = {0, 350, 800, 200};
-		SDL_RenderCopy(ren, controls_texture, NULL, &targetRect);
+		//render startup text
+		renderText(messageTextureStartUp1, width/2, height/2 - 20);
+		renderText(messageTextureStartUp2, width/2, height/2 + 20);
+
+		SDL_Rect targetRectStartup = {0, 350, 800, 200};
+		SDL_RenderCopy(ren, controls_texture, NULL, &targetRectStartup);
 	}
-	
-	if ( game.isRunning() )
+	else if ( game.isRunning() )
 	{
 		//render the score text
-		renderText("Score: " + std::to_string(game.getPlayer()->getNumKills()), 10, 0 );
-		
+		renderText(messageTextureScore, 50, 20 );
+		renderScore(game.getPlayer()->getNumKills(),110, 20);
 		//render the fps text
 		//renderText("FPS: " + std::to_string(game.getFPS()), 10, 32 );
 	}
@@ -238,7 +289,7 @@ void renderSystem::cleanup()
 {
 	TTF_CloseFont(font);
 	SDL_DestroyRenderer((*this).ren);
-	SDL_DestroyWindow((*this).win);	
+	SDL_DestroyWindow((*this).win);
 	SDL_Quit();
 }
 
@@ -254,20 +305,20 @@ void renderSystem::renderPlayer(Player* player)
 	if (player->getRunningRight())
 	{
 		if (player->ifGrounded() )
-			SDL_Rect playerRect = {0,frame*20, 20, 20};
+			playerRect = {0,frame*20, 20, 20};
 		else if (player->ifMidair())
-			SDL_Rect playerRect = {40,frame*20, 20, 20};
+			playerRect = {40,frame*20, 20, 20};
 		if (player->getThetaVelDirection() != 0)
-			SDL_Rect playerRect = {80,frame*20, 20, 20};
+			playerRect = {80,frame*20, 20, 20};
 	}
 	else
 	{
 		if (player->ifGrounded())
-			SDL_Rect playerRect = {20,frame*20, 20, 20};
+			playerRect = {20,frame*20, 20, 20};
 		else if (player->ifMidair())
-			SDL_Rect playerRect = {60,frame*20, 20, 20};
+			playerRect = {60,frame*20, 20, 20};
 		if (player->getThetaVelDirection() != 0)
-			SDL_Rect playerRect = {100,frame*20, 20, 20};
+			playerRect = {100,frame*20, 20, 20};
 	}
 	SDL_RenderCopy(ren, player_texture, &playerRect, &targetRect);
 }
@@ -292,17 +343,17 @@ void renderSystem::renderGun(Player* player)
 		targetRect = { (int)(cameraX + (player->getR() +2) * cos( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 (int)(cameraY + (player->getR() +2) * sin( (-cameraTheta + player->getTheta()) * radPerDeg) - player->getCollisionRadius()),
 							 40,40};
-							 
+
 	int frame = player->getAnimationFrame();
 	//render gun on top
 	SDL_Rect gunsRect;
 	if (player->getShootingRight())
 	{
-		SDL_Rect gunsRect = {0 , frame*20, 20, 20};
+		gunsRect = {0 , frame*20, 20, 20};
 	}
 	else
 	{
-		SDL_Rect gunsRect = {20, frame*20, 20, 20};
+		gunsRect = {20, frame*20, 20, 20};
 	}
 	SDL_RenderCopy(ren, guns_texture, &gunsRect, &targetRect);
 
@@ -311,23 +362,36 @@ void renderSystem::renderGun(Player* player)
 void renderSystem::renderPlanet(gameObject* obj, SDL_Texture* tex)
 {
 	//determine the target rectangle to render into
-	SDL_Rect planetRect = { (int)(cameraX - obj->getCollisionRadius() - 5),
-							 (int)(cameraY - obj->getCollisionRadius() - 5),
-							 (int)(obj->getCollisionRadius()*2)+10, (int)(obj->getCollisionRadius()*2)+10};
+	SDL_Rect* planetRect = new SDL_Rect;
+	(*planetRect).x = (int)(cameraX - 125);
+	(*planetRect).y = (int)(cameraY - 125);
+	(*planetRect).w = 250;
+	(*planetRect).h = 250;
 	//render the planet
-	SDL_RenderCopyEx(ren, tex , NULL, &planetRect, -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(ren, tex , NULL, planetRect, -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopyEx(ren, tex , NULL, planetRect, 0, NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopy(ren, tex , NULL, planetRect);
+	delete planetRect;
 }
 
 void renderSystem::renderCloud(gameObject* cloud, SDL_Texture* tex)
 {
 	//determine the target rectangle to render into
-	SDL_Rect targetRect = { (int)(cameraX + (cloud->getR() ) * cos( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
-							 (int)(cameraY + (cloud->getR() ) * sin( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius()),
-							 50, 50};
-	int frame = cloud->getAnimationFrame();
-	SDL_Rect cloudRect = {0, frame*25, 25, 25};
+	SDL_Rect* targetRect = new SDL_Rect;
+	(*targetRect).x = (int)(cameraX + (cloud->getR() ) * cos( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius());
+	(*targetRect).y = (int)(cameraY + (cloud->getR() ) * sin( (-cameraTheta + cloud->getTheta()) * radPerDeg) - cloud->getCollisionRadius());
+	(*targetRect).w = 50;
+	(*targetRect).h = 50;
+	SDL_Rect* cloudRect = new SDL_Rect;
+	(*cloudRect).x = 0;
+	(*cloudRect).y =  cloud->getAnimationFrame()*25;
+	(*cloudRect).w = 25;
+	(*cloudRect).h = 25;
 	//render the planet
-	SDL_RenderCopyEx(ren, tex , &cloudRect, &targetRect, 90 - cameraTheta + cloud->getTheta(), NULL, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(ren, tex , cloudRect, targetRect, 90 - cameraTheta + cloud->getTheta(), NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopy(ren, tex , &cloudRect, targetRect);
+	delete targetRect;
+	delete cloudRect;
 }
 
 void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex, double rotAngle)
@@ -341,37 +405,66 @@ void renderSystem::renderEnemy(gameObject* obj, SDL_Texture* tex, double rotAngl
 	if (obj->isNotExploding())
 	{
 		if (obj->getThetaVelDirection() == 1)
-			SDL_Rect enemyRect = {0,frame*20, 20, 20};
+			enemyRect = {0,frame*20, 20, 20};
 		else if (obj->getThetaVelDirection() == -1)
-			SDL_Rect enemyRect = {20, frame*20, 20, 20};
+			enemyRect = {20, frame*20, 20, 20};
 	}
 	else
 	{
 		if (obj->getThetaVelDirection() == 1)
-			SDL_Rect enemyRect = {40,frame*20, 20, 20};
+			enemyRect = {40,frame*20, 20, 20};
 		else if (obj->getThetaVelDirection() == -1)
-			SDL_Rect enemyRect = {60, frame*20, 20, 20};
+			enemyRect = {60, frame*20, 20, 20};
 	}
 	//render
 	SDL_RenderCopyEx(ren, tex , &enemyRect, &targetRect, rotAngle + 90 -cameraTheta + obj->getTheta(), NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopy(ren, tex , &enemyRect, &targetRect);
 }
 
-void renderSystem::renderText(std::string message, int xcoordinate, int ycoordinate)
+void renderSystem::renderText(SDL_Texture* tex, int xcoordinate, int ycoordinate)
 {
-	char const* scoreChar = message.c_str();
-	SDL_Surface* scoreText = TTF_RenderText_Solid( font, scoreChar,  {255, 255, 255, 255} );
-	SDL_Rect scoreRect = { xcoordinate , ycoordinate, 0, 0};
-	SDL_BlitSurface( scoreText,NULL, SDL_GetWindowSurface(win), &scoreRect );
+	int w, h;
+	SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+
+	SDL_Rect* targetRect = new SDL_Rect;
+	(*targetRect).x = xcoordinate - w/2;
+	(*targetRect).y = ycoordinate - h/2;
+	(*targetRect).w = w;
+	(*targetRect).h = h;
+
+	SDL_RenderCopy( ren, tex, NULL, targetRect);
+	delete targetRect;
+}
+
+void renderSystem::renderScore(int score, int xcoordinate, int ycoordinate)
+{
+	//let's use some recursion
+	if (score >= 10)
+		renderScore(score/10, xcoordinate-12, ycoordinate);
 	
-	//cleanup
-	//delete scoreChar;
-	SDL_FreeSurface( scoreText );
+	int digit = score % 10;
+	
+	SDL_Rect* scoreRect = new SDL_Rect;
+	(*scoreRect).x = 13*digit;
+	(*scoreRect).y = 0;
+	(*scoreRect).w = 12;
+	(*scoreRect).h = 25;
+	
+	SDL_Rect* targetRect = new SDL_Rect;
+	(*targetRect).x = xcoordinate;
+	(*targetRect).y = ycoordinate - 14;
+	(*targetRect).w = (*scoreRect).w;
+	(*targetRect).h = (*scoreRect).h;
+
+	SDL_RenderCopy( ren, messageTextureNumbers, scoreRect, targetRect);
+	delete scoreRect;
+	delete targetRect;
 }
 
 void renderSystem::renderBackground()
 {
-		//determine the target rectangle to render into
-	SDL_SetRenderDrawColor(ren, 200, 0, 0, 255);
+	//determine the target rectangle to render into
+	//SDL_SetRenderDrawColor(ren, 200, 0, 0, 255);
 	SDL_Rect targetRect = { -100, -200, 1000, 1000};
 	SDL_Rect backgroundRect = {0, 40, 250, 170};
 	//render the blue background
@@ -379,6 +472,24 @@ void renderSystem::renderBackground()
 	//rotate and render the clouds
 	#ifndef EMSCRIPTEN
 	SDL_RenderCopyEx(ren, background_texture , NULL, NULL, -cameraTheta*0.7, NULL, SDL_FLIP_NONE);
+	//SDL_RenderCopy(ren, background_texture , NULL, NULL);
 	#endif
 	//SDL_RenderCopy(ren, tex , NULL, &screenRect);
+}
+
+void renderSystem::renderBullet(gameObject* obj, SDL_Texture* tex)
+{
+	//determine the target rectangle to render into
+	
+	// cameraX + ((game.getBullets())[i])->getR() * cos( (-cameraTheta + ((game.getBullets())[i])->getTheta()) * radPerDeg),
+	// cameraY + ((game.getBullets())[i])->getR() * sin( (-cameraTheta + ((game.getBullets())[i])->getTheta()) * radPerDeg),
+	
+	SDL_Rect* targetRect = new SDL_Rect;
+	(*targetRect).x = (int)(cameraX + (obj->getR() + 5) * cos( (-cameraTheta + obj->getTheta()) * radPerDeg));
+	(*targetRect).y = (int)(cameraY + (obj->getR() + 5) * sin( (-cameraTheta + obj->getTheta()) * radPerDeg));
+	(*targetRect).w = 10;
+	(*targetRect).h = 10;
+	//render the planet
+	SDL_RenderCopy(ren, tex , NULL, targetRect);
+	delete targetRect;
 }

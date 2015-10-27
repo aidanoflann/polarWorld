@@ -2,6 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 
 #include "game.h"
 #include "renderSystem.h"
@@ -40,14 +41,14 @@ void Game::init(bool reset)
 			std::cout << "SDL_Mixer Error: " << SDL_GetError() << std::endl;
 		
 		//load the default play music
-		mscMusic = Mix_LoadMUS("sounds/play.wav");
+		mscMusic = Mix_LoadMUS("sounds/play.mp3");
 		if (mscMusic == NULL)
-			std::cout << "Couldn't load play.wav: " << Mix_GetError() << std::endl;
+			std::cout << "Couldn't load play.mp3: " << Mix_GetError() << std::endl;
 		
 		//load the death music
-		mscMusicDead = Mix_LoadMUS("sounds/dead.wav");
+		mscMusicDead = Mix_LoadMUS("sounds/dead.mp3");
 		if (mscMusicDead == NULL)
-			std::cout << "Couldn't load dead.wav: " << Mix_GetError() << std::endl;
+			std::cout << "Couldn't load dead.mp3: " << Mix_GetError() << std::endl;
 		
 		//since we're in the Startup state, play the music
 		if (!Mix_PlayingMusic())
@@ -137,7 +138,9 @@ void Game::loopIteration()
 						}
 						//if up or space is pressed, jump!
 						if ( event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_w)
+						{
 							(*player).jump();
+						}
 						//if left is pressed, shoot left
 						if ( event.key.keysym.sym == SDLK_LEFT)
 						{
@@ -322,6 +325,7 @@ void Game::restart()
 void Game::gameOver(bool self)
 {
 	//play the sad music...
+	//TODO: ensure channel is free
 	Mix_PlayMusic(mscMusicDead, 1);
 	if (self) state = GameOverSelf;
 	else state = GameOverEnemy;

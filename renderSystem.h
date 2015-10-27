@@ -18,6 +18,16 @@ private:
 	//renderer
 	SDL_Renderer* ren;
 	SDL_Window* win;
+	//text surface and texture
+	SDL_Texture* messageTextureStartUp1;
+	SDL_Texture* messageTextureStartUp2;
+	SDL_Texture* messageTexturePaused;
+	SDL_Texture* messageTextureGameOverSelf;
+	SDL_Texture* messageTextureGameOverEnemy;
+	SDL_Texture* messageTextureScore;
+	SDL_Texture* messageTexturePressR;
+	SDL_Texture* messageTextureNumbers;
+	SDL_Surface* messageSurface;
 	SDL_Texture* planet_texture;
 	SDL_Texture* player_texture;
 	SDL_Texture* guns_texture;
@@ -27,7 +37,11 @@ private:
 	SDL_Texture* background_texture;
 	SDL_Texture* backgroundSky_texture;
 	SDL_Texture* controls_texture;
-	TTF_Font *font;
+	SDL_Texture* bullet_texture;
+	TTF_Font* font;
+	//the startup monsters
+	gameObject gen;
+	gameObject sen;
 	//window width and height
 	double width;
 	double height;
@@ -37,8 +51,10 @@ private:
 	void renderPlanet(gameObject*, SDL_Texture*);
 	void renderCloud(gameObject*, SDL_Texture*);
 	void renderGun(Player*);
+	void renderBullet(gameObject*, SDL_Texture*);
 	//inputs are message, xcoordinate and ycoordinate
-	void renderText(std::string, int, int);
+	void renderText(SDL_Texture*, int, int);
+	void renderScore(int, int, int);
 	void renderBackground();
 	int cameraX;
 	int cameraY;
